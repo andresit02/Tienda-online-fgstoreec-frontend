@@ -13,9 +13,11 @@ function App() {
   
   // Ahora esto funcionará correctamente porque los nombres coinciden con el Hook
   const { 
-    carrito, isCartOpen, setIsCartOpen, agregarAlCarrito, 
+    carrito, isCarritoAbierto, setIsCarritoAbierto, agregarAlCarrito, 
     eliminarDelCarrito, actualizarCantidad, totalCarrito 
   } = useCarrito();
+
+  const [busqueda, setBusqueda] = useState("");
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
@@ -23,9 +25,11 @@ function App() {
       {/* 1. Barra de Navegación */}
       <Navbar 
         carritoCount={carrito.reduce((acc, item) => acc + item.cantidad, 0)} 
-        onOpenCart={() => setIsCartOpen(true)}
+        onOpenCart={() => setIsCarritoAbierto(true)}
         vistaActual={vistaActual}
         setVistaActual={setVistaActual}
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
       />
       
       {/* 2. Contenido Principal */}
@@ -35,9 +39,15 @@ function App() {
             <Home setVistaActual={setVistaActual} />
             <div className="py-10">
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold text-slate-800">Favoritos de la semana</h2>
                 </div>
-                <Catalog agregarAlCarrito={agregarAlCarrito} />
+                <Catalog
+                  agregarAlCarrito={agregarAlCarrito}
+                  modo="favoritos"
+                  titulo="Lo más vendido"
+                  subtitulo="Los modelos que más se llevan esta semana."
+                  limite={4}
+                  tipoFavoritos="masVendidos"
+                />
             </div>
           </>
         )}
@@ -54,6 +64,7 @@ function App() {
                 </div>
                 <h2 className="text-3xl font-bold mb-4 text-slate-900">Hablemos</h2>
                 <p className="mb-8 text-slate-600">Estamos en Quito y realizamos envíos seguros por Servientrega a todo el país. Escríbenos para confirmar stock.</p>
+                {/* Botón de WhatsApp */}
                 <button onClick={() => window.open('https://wa.me/593999999999', '_blank')} className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-600 transition-colors shadow-lg shadow-slate-900/20 cursor-pointer">
                   <MessageCircle /> Chatear ahora
                 </button>
@@ -63,13 +74,13 @@ function App() {
       </main>
 
       {/* 3. El Carrito */}
-      <CartDrawer 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
+      <CartDrawer
+        abierto={isCarritoAbierto}
+        cerrar={() => setIsCarritoAbierto(false)}
         carrito={carrito}
         total={totalCarrito}
-        onRemove={eliminarDelCarrito}
-        onUpdateQty={actualizarCantidad}
+        eliminarItem={eliminarDelCarrito}
+        actualizarCantidad={actualizarCantidad}
       />
 
       {/* 4. Footer */}

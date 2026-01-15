@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Menu, X, Search, Flame } from 'lucide-react'; // Quitamos Bike y CarFront
+import { ShoppingBag, Menu, X, Flame } from 'lucide-react'; // Quitamos Bike y CarFront
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vistaActual }) {
@@ -85,7 +85,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
 
           {/* C. ICONOS DE ACCIÓN */}
           <div className="flex items-center gap-5 text-slate-700">
-            <Search className="w-5 h-5 cursor-pointer hover:text-black transition" strokeWidth={1.5} />
+            
             
             <div className="relative cursor-pointer group" onClick={onOpenCart}>
               <ShoppingBag className="w-6 h-6 group-hover:text-black transition" strokeWidth={1.5} />
