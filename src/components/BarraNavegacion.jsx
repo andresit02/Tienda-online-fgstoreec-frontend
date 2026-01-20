@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Menu, X, Flame } from 'lucide-react'; // Quitamos Bike y CarFront
+import { ShoppingBag, Menu, X, Flame, Truck } from 'lucide-react'; // <--- Agregamos Truck
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vistaActual }) {
@@ -26,7 +26,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
 
   return (
     <>
-      {/* 1. TOP BAR (Sin cambios, funciona bien) */}
+      {/* 1. TOP BAR */}
       <div className="bg-slate-900 text-white text-[10px] md:text-xs font-bold py-2 text-center tracking-widest uppercase flex justify-center items-center gap-4">
         <span className="animate-pulse">🚚 Envíos seguros a todo el Ecuador</span>
         <span className="hidden md:inline text-slate-600">|</span>
@@ -47,7 +47,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
               <Menu />
             </button>
             
-            {/* Logo un poco más grande para dar peso */}
+            {/* Logo */}
             <div onClick={() => setVistaActual('inicio')} className="cursor-pointer flex flex-col items-start leading-none group">
               <h1 className="text-3xl font-black italic tracking-tighter text-slate-900">
                 FG<span className="text-red-600">STORE</span>
@@ -58,21 +58,21 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
             </div>
           </div>
 
-          {/* B. NAVEGACIÓN CENTRAL (Aquí está el cambio estético grande) */}
+          {/* B. NAVEGACIÓN CENTRAL */}
           <div className="hidden md:flex items-center gap-8 font-medium text-sm text-slate-500">
             
-            {/* 1. Inicio separado */}
+            {/* 1. Inicio */}
             <NavLink text="Inicio" onClick={() => setVistaActual('inicio')} isActive={vistaActual === 'inicio'} />
 
-            {/* Separador visual sutil */}
+            {/* Separador */}
             <div className="h-5 w-px bg-slate-200"></div>
 
-            {/* 2. Grupo de Productos (Limpios, sin iconos) */}
+            {/* 2. Grupo de Productos */}
             <div className="flex items-center gap-6">
                 <NavLink text="Motos a Escala" onClick={() => setVistaActual('catalogo')} />
                 <NavLink text="Autos a Escala" onClick={() => setVistaActual('catalogo')} />
                 
-                {/* Hotwheels: Destacado solo por color e icono sutil */}
+                {/* Hotwheels */}
                 <button 
                   onClick={() => setVistaActual('catalogo')}
                   className="flex items-center gap-1.5 text-orange-600 hover:text-orange-700 transition-colors font-bold group"
@@ -80,12 +80,24 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
                   <Flame size={16} className="fill-orange-600 group-hover:scale-110 transition-transform" />
                   <span>HOTWHEELS</span>
                 </button>
+
+                {/* --- NUEVO BOTÓN: ENVÍOS --- */}
+                <button 
+                  onClick={() => setVistaActual('pruebas')}
+                  className={`flex items-center gap-1.5 transition-colors font-bold group ${
+                    vistaActual === 'pruebas' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  {/* Icono de camión pequeño */}
+                  <Truck size={16} className={`transition-transform group-hover:scale-110 ${vistaActual === 'pruebas' ? 'text-red-600' : 'text-slate-400 group-hover:text-red-600'}`} />
+                  <span>ENVÍOS</span>
+                </button>
+                {/* --------------------------- */}
             </div>
           </div>
 
           {/* C. ICONOS DE ACCIÓN */}
           <div className="flex items-center gap-5 text-slate-700">
-            
             
             <div className="relative cursor-pointer group" onClick={onOpenCart}>
               <ShoppingBag className="w-6 h-6 group-hover:text-black transition" strokeWidth={1.5} />
@@ -102,7 +114,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
         </div>
       </nav>
 
-      {/* 3. MENU MOVIL (Actualizado para coincidir con la limpieza) */}
+      {/* 3. MENU MOVIL */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -126,8 +138,13 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
                 <button onClick={() => {setVistaActual('inicio'); setIsMobileMenuOpen(false)}} className="text-left py-2 border-b border-slate-50">Inicio</button>
                 <button onClick={() => {setVistaActual('catalogo'); setIsMobileMenuOpen(false)}} className="text-left py-2 border-b border-slate-50">Motos a Escala</button>
                 <button onClick={() => {setVistaActual('catalogo'); setIsMobileMenuOpen(false)}} className="text-left py-2 border-b border-slate-50">Autos a Escala</button>
-                <button onClick={() => {setVistaActual('catalogo'); setIsMobileMenuOpen(false)}} className="text-left py-2 text-orange-600 font-bold flex items-center gap-2">
+                <button onClick={() => {setVistaActual('catalogo'); setIsMobileMenuOpen(false)}} className="text-left py-2 border-b border-slate-50 text-orange-600 font-bold flex items-center gap-2">
                     <Flame size={18} className="fill-orange-600" /> Hotwheels
+                </button>
+                
+                {/* Opción en Menú Móvil */}
+                <button onClick={() => {setVistaActual('pruebas'); setIsMobileMenuOpen(false)}} className="text-left py-2 text-slate-700 font-bold flex items-center gap-2">
+                    <Truck size={18} className="text-slate-400" /> Envíos Realizados
                 </button>
               </div>
             </motion.div>
