@@ -5,6 +5,7 @@ import { PRODUCTOS } from '../data/inventario';
 
 const Catalogo = ({
   agregarAlCarrito,
+  onSelectProducto,
   modo = "catalogo",          // "catalogo" | "favoritos"
   titulo = "Catálogo Oficial",
   subtitulo = "Explora nuestra colección premium.",
@@ -72,9 +73,13 @@ const Catalogo = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {listaMostrar.map((producto) => (
-          <div key={producto.id} className="group bg-white rounded-2xl border border-slate-100 hover:shadow-xl hover:border-red-100 transition-all duration-300 flex flex-col overflow-hidden">
-            <div className="relative h-56 overflow-hidden bg-slate-100">
-               <img src={producto.imagen} alt={producto.nombre} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <div
+            key={producto.id}
+            onClick={() => onSelectProducto?.(producto.id)}
+            className="group bg-white rounded-2xl border border-slate-100 hover:shadow-xl hover:border-red-100 transition-all duration-300 flex flex-col overflow-hidden cursor-pointer"
+          >            
+          <div className="relative h-56 overflow-hidden bg-slate-100">
+                      <img src={producto.imagen} alt={producto.nombre} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded text-slate-900 shadow-sm">
                  {producto.escala}
                </div>
@@ -90,10 +95,13 @@ const Catalogo = ({
               <h3 className="text-lg font-bold text-slate-900 leading-tight mb-4 group-hover:text-red-600 transition-colors">{producto.nombre}</h3>
               <div className="mt-auto flex items-center justify-between">
                 <span className="text-2xl font-bold text-slate-900">${producto.precio.toFixed(2)}</span>
-                <button 
-                  onClick={() => agregarAlCarrito(producto)}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    agregarAlCarrito(producto);
+                  }}
                   className="bg-slate-900 text-white p-3 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-slate-900/20 active:scale-95 flex items-center gap-2 cursor-pointer"
-                >
+                  >
                   <ShoppingCart size={18} />
                 </button>
               </div>

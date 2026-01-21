@@ -8,7 +8,13 @@ export const PRODUCTOS = [
       imagen: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=800", 
       categoria: "Deportiva", 
       stock: 5, 
-      rating: 5 
+      rating: 5,
+
+      // descripcion y otros detalles
+      descripcion: "Producto con licencia oficial y empaque original",
+      caracteristicas: ["Manubrio móvil", "Ruedas funcionales"],
+      materiales: "Metal y plástico",
+      medidasCaja: { largo: 22.3, ancho: 8.8, alto: 14 }
     },
     { 
       id: 2, 
@@ -19,7 +25,13 @@ export const PRODUCTOS = [
       imagen: "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?auto=format&fit=crop&q=80&w=800", 
       categoria: "Deportiva", 
       stock: 3, 
-      rating: 4 
+      rating: 4,
+      
+      // descripcion y otros detalles
+      descripcion: "Producto con licencia oficial y empaque original",
+      caracteristicas: ["Manubrio móvil", "Ruedas funcionales"],
+      materiales: "Metal y plástico",
+      medidasCaja: { largo: 22.3, ancho: 8.8, alto: 14 }
     },
     { 
       id: 3, 
@@ -30,7 +42,12 @@ export const PRODUCTOS = [
       imagen: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=800", 
       categoria: "Cruiser", 
       stock: 8, 
-      rating: 5 
+      rating: 5,
+      // descripcion y otros detalles
+      descripcion: "Producto con licencia oficial y empaque original",
+      caracteristicas: ["Manubrio móvil", "Ruedas funcionales"],
+      materiales: "Metal y plástico",
+      medidasCaja: { largo: 22.3, ancho: 8.8, alto: 14 }
     },
     { 
       id: 4, 
@@ -41,7 +58,12 @@ export const PRODUCTOS = [
       imagen: "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?auto=format&fit=crop&q=80&w=800", 
       categoria: "Cross", 
       stock: 12, 
-      rating: 4 
+      rating: 4,
+      // descripcion y otros detalles
+      descripcion: "Producto con licencia oficial y empaque original",
+      caracteristicas: ["Manubrio móvil", "Ruedas funcionales"],
+      materiales: "Metal y plástico",
+      medidasCaja: { largo: 22.3, ancho: 8.8, alto: 14 }
     },
     { 
       id: 5, 
@@ -52,7 +74,12 @@ export const PRODUCTOS = [
       imagen: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&q=80&w=800", 
       categoria: "Deportiva", 
       stock: 2, 
-      rating: 5 
+      rating: 5,
+      // descripcion y otros detalles
+      descripcion: "Producto con licencia oficial y empaque original",
+      caracteristicas: ["Manubrio móvil", "Ruedas funcionales"],
+      materiales: "Metal y plástico",
+      medidasCaja: { largo: 22.3, ancho: 8.8, alto: 14 }
     },
     { 
       id: 6, 
@@ -63,6 +90,11 @@ export const PRODUCTOS = [
       imagen: "https://images.unsplash.com/photo-1625043484550-df60256f6ea5?auto=format&fit=crop&q=80&w=800", 
       categoria: "Aventura", 
       stock: 6, 
-      rating: 5 
+      rating: 5,
+      // descripcion y otros detalles
+      descripcion: "Producto con licencia oficial y empaque original",
+      caracteristicas: ["Manubrio móvil", "Ruedas funcionales"],
+      materiales: "Metal y plástico",
+      medidasCaja: { largo: 22.3, ancho: 8.8, alto: 14 }
     },
 ];
