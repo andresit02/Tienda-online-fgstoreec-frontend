@@ -1,5 +1,6 @@
 import React from 'react';
-import { ShoppingCart, X, MessageCircle, Bike, Check } from 'lucide-react';
+import { ShoppingCart, X, MessageCircle, Bike, Check, Motorbike } from 'lucide-react';
+import {WhatsappIcon} from './SocialMediaIcons';
 
 const CarritoLateral = ({ abierto, cerrar, carrito, total, eliminarItem, actualizarCantidad }) => {
   
@@ -27,7 +28,7 @@ const CarritoLateral = ({ abierto, cerrar, carrito, total, eliminarItem, actuali
       <div className={`fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ${abierto ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
           <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center justify-center gap-2 text-center">
               <ShoppingCart className="w-5 h-5 text-red-600" /> Tu Pedido
             </h2>
             <button onClick={cerrar} className="p-2 hover:bg-slate-200 rounded-full transition-colors cursor-pointer">
@@ -38,7 +39,7 @@ const CarritoLateral = ({ abierto, cerrar, carrito, total, eliminarItem, actuali
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {carrito.length === 0 ? (
               <div className="text-center py-20 opacity-50">
-                <Bike className="w-16 h-16 mx-auto mb-4 text-slate-300" />
+                <Motorbike className="w-16 h-16 mx-auto mb-4 text-slate-300" />
                 <p>Tu carrito está vacío</p>
               </div>
             ) : (
@@ -74,7 +75,7 @@ const CarritoLateral = ({ abierto, cerrar, carrito, total, eliminarItem, actuali
                 <span className="text-2xl font-bold text-slate-900">${total.toFixed(2)}</span>
               </div>
               <button onClick={finalizarCompraWhatsApp} className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-600/20 transition-all active:scale-95 cursor-pointer">
-                <MessageCircle size={20} /> Confirmar compra por WhatsApp
+                <WhatsappIcon size={20} className="text-white" /> Confirmar compra por WhatsApp
               </button>
             </div>
           )}

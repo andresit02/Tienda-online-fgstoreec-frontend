@@ -1,24 +1,30 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, CheckCircle, XCircle, Filter, X } from 'lucide-react';
+import { Search, ShoppingCart, CheckCircle, Filter, X } from 'lucide-react';
 
 const Catalogo = ({
   productosIniciales = [],
   agregarAlCarrito,
-  onSelectProducto,
-  titulo
+  onSelectProducto
 }) => {
   // ESTADOS DE FILTROS
   const [busqueda, setBusqueda] = useState("");
-  const [marcasSeleccionadas, setMarcasSeleccionadas] = useState([]);
+  const [marcasVehiculoSeleccionadas, setMarcasVehiculoSeleccionadas] = useState([]);
+  const [fabricantesSeleccionados, setFabricantesSeleccionados] = useState([]); // Nuevo Filtro
   const [escalasSeleccionadas, setEscalasSeleccionadas] = useState([]);
   const [soloDisponibles, setSoloDisponibles] = useState(false);
   
   // Estado para mostrar filtros en móvil
   const [mostrarFiltrosMovil, setMostrarFiltrosMovil] = useState(false);
 
-  // 1. EXTRAER OPCIONES (Basado en marcaVehiculo)
-  const marcasDisponibles = useMemo(() => 
+  // 1. EXTRAER OPCIONES ÚNICAS
+  // Marcas de Vehículo (ej: Yamaha, Ford)
+  const marcasVehiculoDisponibles = useMemo(() => 
     [...new Set(productosIniciales.map(p => p.marcaVehiculo || "Otras"))].sort(), 
+  [productosIniciales]);
+
+  // Fabricantes (ej: Maisto, HotWheels) - Nuevo Campo
+  const fabricantesDisponibles = useMemo(() => 
+    [...new Set(productosIniciales.map(p => p.fabricante))].sort(), 
   [productosIniciales]);
 
   const escalasDisponibles = useMemo(() => 
@@ -39,34 +45,33 @@ const Catalogo = ({
     // Texto
     const coincideTexto = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
     
-    // Marca Vehículo (Si no hay seleccionadas, muestra todas)
+    // Filtro 1: Marca Vehículo
     const marcaProd = p.marcaVehiculo || "Otras";
-    const coincideMarca = marcasSeleccionadas.length === 0 || marcasSeleccionadas.includes(marcaProd);
+    const coincideMarcaVehiculo = marcasVehiculoSeleccionadas.length === 0 || marcasVehiculoSeleccionadas.includes(marcaProd);
 
-    // Escala
+    // Filtro 2: Fabricante (Nuevo)
+    const coincideFabricante = fabricantesSeleccionados.length === 0 || fabricantesSeleccionados.includes(p.fabricante);
+
+    // Filtro 3: Escala
     const coincideEscala = escalasSeleccionadas.length === 0 || escalasSeleccionadas.includes(p.escala);
 
-    // Disponibilidad (Checkbox simple)
+    // Filtro 4: Disponibilidad
     const coincideStock = soloDisponibles ? p.stock > 0 : true;
 
-    return coincideTexto && coincideMarca && coincideEscala && coincideStock;
+    return coincideTexto && coincideMarcaVehiculo && coincideFabricante && coincideEscala && coincideStock;
   });
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12 animate-fade-in font-sans">
       
-      {/* TÍTULO PRINCIPAL */}
-
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* ===================== SIDEBAR IZQUIERDO (FILTROS) ===================== */}
-        {/* En móvil se oculta y sale con botón, en PC se ve siempre */}
         <aside className={`
             lg:w-1/4 lg:block 
             ${mostrarFiltrosMovil ? 'fixed inset-0 z-50 bg-white p-6 overflow-y-auto' : 'hidden'}
         `}>
             
-            {/* Header Móvil */}
             <div className="flex justify-between items-center lg:hidden mb-6">
                 <span className="font-bold text-xl">Filtros</span>
                 <button onClick={() => setMostrarFiltrosMovil(false)}><X /></button>
@@ -87,36 +92,13 @@ const Catalogo = ({
                             checked={soloDisponibles}
                             onChange={() => setSoloDisponibles(!soloDisponibles)}
                         />
-                        <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">Solo en stock</span>
+                        <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">Solo Disponibles</span>
                     </label>
                 </div>
 
                 <div className="w-full h-px bg-slate-100"></div>
 
-                {/* 2. MARCAS (De Moto) */}
-                <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Marca</h3>
-                    <div className="space-y-2">
-                        {marcasDisponibles.map(marca => (
-                            <label key={marca} className="flex items-center gap-3 cursor-pointer group">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${marcasSeleccionadas.includes(marca) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
-                                    {marcasSeleccionadas.includes(marca) && <CheckCircle size={14} className="text-white" />}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    className="hidden"
-                                    checked={marcasSeleccionadas.includes(marca)}
-                                    onChange={() => toggleFiltro(marca, marcasSeleccionadas, setMarcasSeleccionadas)}
-                                />
-                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{marca}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="w-full h-px bg-slate-100"></div>
-
-                {/* 3. ESCALAS */}
+                {/* 2. ESCALAS */}
                 <div>
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Escala</h3>
                     <div className="space-y-2">
@@ -137,16 +119,60 @@ const Catalogo = ({
                     </div>
                 </div>
 
+                <div className="w-full h-px bg-slate-100"></div>
+
+                {/* 3. MARCA DEL VEHÍCULO */}
+                <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Marca Vehículo</h3>
+                    <div className="space-y-2">
+                        {marcasVehiculoDisponibles.map(marca => (
+                            <label key={marca} className="flex items-center gap-3 cursor-pointer group">
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${marcasVehiculoSeleccionadas.includes(marca) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
+                                    {marcasVehiculoSeleccionadas.includes(marca) && <CheckCircle size={14} className="text-white" />}
+                                </div>
+                                <input 
+                                    type="checkbox" 
+                                    className="hidden"
+                                    checked={marcasVehiculoSeleccionadas.includes(marca)}
+                                    onChange={() => toggleFiltro(marca, marcasVehiculoSeleccionadas, setMarcasVehiculoSeleccionadas)}
+                                />
+                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{marca}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="w-full h-px bg-slate-100"></div>
+
+                {/* 4. FABRICANTE (Nuevo Filtro) */}
+                <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Fabricante</h3>
+                    <div className="space-y-2">
+                        {fabricantesDisponibles.map(fabricante => (
+                            <label key={fabricante} className="flex items-center gap-3 cursor-pointer group">
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${fabricantesSeleccionados.includes(fabricante) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
+                                    {fabricantesSeleccionados.includes(fabricante) && <CheckCircle size={14} className="text-white" />}
+                                </div>
+                                <input 
+                                    type="checkbox" 
+                                    className="hidden"
+                                    checked={fabricantesSeleccionados.includes(fabricante)}
+                                    onChange={() => toggleFiltro(fabricante, fabricantesSeleccionados, setFabricantesSeleccionados)}
+                                />
+                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{fabricante}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
             </div>
         </aside>
 
         {/* ===================== CONTENIDO DERECHO ===================== */}
         <div className="lg:w-3/4 flex flex-col w-full">
             
-            {/* BARRA SUPERIOR (Buscador y Contador) */}
+            {/* BARRA SUPERIOR */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-                
-                {/* Botón Filtros (Solo Móvil) */}
                 <button 
                     onClick={() => setMostrarFiltrosMovil(true)}
                     className="lg:hidden w-full flex items-center justify-center gap-2 py-3 bg-slate-100 rounded-xl font-bold"
@@ -158,7 +184,7 @@ const Catalogo = ({
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                     <input
                         type="text"
-                        placeholder="Buscar en esta sección..."
+                        placeholder="Buscar modelo..."
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                         className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 focus:border-slate-900 focus:ring-0 outline-none transition-colors"
@@ -183,19 +209,18 @@ const Catalogo = ({
                             >
                                 {/* IMAGEN */}
                                 <div className="relative h-60 bg-slate-50 flex items-center justify-center overflow-hidden p-6">
-                                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-bold px-2 py-1 rounded border border-slate-200 z-10 text-slate-600">
-                                        {producto.escala}
-                                    </span>
-                                    <img
-                                        src={producto.imagenes?.principal}
-                                        alt={producto.nombre}
-                                        className={`w-full h-full object-contain transition-transform duration-500 ${tieneStock ? 'group-hover:scale-110' : 'grayscale opacity-60'}`}
-                                    />
-                                    {!tieneStock && (
-                                        <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
-                                            <span className="bg-slate-900 text-white px-4 py-1 font-bold rounded-full text-xs shadow-lg">AGOTADO</span>
-                                        </div>
-                                    )}
+                                <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-bold px-2 py-1 rounded border border-slate-200 z-10 text-slate-600">
+                                    {producto.escala}
+                                </span>
+
+                                <img
+                                    src={producto.imagenes?.principal || "/img/placeholder.png"}
+                                    alt={producto.nombre}
+                                    className={`w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 ${!tieneStock && 'grayscale opacity-70'}`}
+                                    onError={(e) => {
+                                    e.currentTarget.src = "/img/placeholder.png";
+                                    }}
+                                />
                                 </div>
 
                                 {/* INFO */}
@@ -206,8 +231,8 @@ const Catalogo = ({
                                         ) : (
                                             <span className="text-[10px] font-extrabold text-red-600 uppercase bg-red-50 px-2 py-0.5 rounded">Agotado</span>
                                         )}
-                                        {/* Marca Vehiculo (Nueva propiedad) */}
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{producto.marcaVehiculo || producto.marca}</span>
+                                        {/* Mostramos el Fabricante (Maisto/HotWheels) */}
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{producto.fabricante}</span>
                                     </div>
 
                                     <h3 className="text-base font-bold text-slate-900 leading-tight mb-4 group-hover:text-red-600 transition-colors line-clamp-2">
@@ -223,7 +248,9 @@ const Catalogo = ({
                                                 if (tieneStock) agregarAlCarrito(producto);
                                             }}
                                             className={`p-2.5 rounded-lg transition-all shadow-sm
-                                                ${tieneStock ? 'bg-slate-900 text-white hover:bg-red-600' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                                ${tieneStock 
+                                                    ? 'bg-slate-900 text-white hover:bg-red-600' 
+                                                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
                                             `}
                                         >
                                             <ShoppingCart size={18} />
@@ -241,7 +268,8 @@ const Catalogo = ({
                     <button 
                         onClick={() => {
                             setBusqueda(""); 
-                            setMarcasSeleccionadas([]); 
+                            setMarcasVehiculoSeleccionadas([]); 
+                            setFabricantesSeleccionados([]);
                             setEscalasSeleccionadas([]); 
                             setSoloDisponibles(false);
                         }}

@@ -104,7 +104,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
               </div>
               
               <div className="hidden md:flex flex-col items-start leading-none">
-                 <span className="text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors uppercase tracking-tight">
+                 <span className="text-lg font-black text-slate-900 group-hover:text-red-600 transition-colors uppercase tracking-tight">
                     CARRITO DE COMPRAS
                  </span>
               </div>

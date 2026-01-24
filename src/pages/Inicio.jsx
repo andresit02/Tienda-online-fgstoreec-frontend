@@ -3,14 +3,13 @@ import {
   ArrowRight, ShoppingBag, Truck, CheckCircle, 
   Package, CreditCard, Instagram, Facebook, Flame, Star, ExternalLink
 } from "lucide-react";
+import {TikTokIcon, InstagramIcon, FacebookIcon} from "../components/SocialMediaIcons";
 
 // RECIBIMOS "productos" y "agregarAlCarrito" COMO PROPS
 const Inicio = ({ setVistaActual, productos, agregarAlCarrito }) => {
   
   // Imagen de fondo fija
   const imagenFondo = "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769076545/imgi_32_bike_gajser_team-shoot_hondaracing_shotbybavo_2_d74wbu.jpg";
-
-  // YA NO NECESITAMOS LA LISTA "productosDestacados" AQUÍ ADENTRO. LA BORRAMOS.
 
   return (
     <div className="font-sans text-slate-900 bg-white">
@@ -53,9 +52,7 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito }) => {
                 {/* Botón TikTok (Negro Estático) */}
                 <a href="https://www.tiktok.com/@fgstoreec" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 px-6 py-4 bg-black text-white rounded-2xl shadow-lg shadow-black/10 hover:-translate-y-1 transition-all duration-300 min-w-[200px]">
                     <div className="bg-white/20 p-2 rounded-full">
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
-                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                        </svg>
+                        <TikTokIcon className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-left leading-none">
                         <p className="text-[10px] text-gray-300 font-bold uppercase tracking-wide mb-1">Síguenos</p>
@@ -66,7 +63,7 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito }) => {
                 {/* Botón Instagram (Gradiente Estático) */}
                 <a href="https://www.instagram.com/fgstoreec" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 px-6 py-4 bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white rounded-2xl shadow-lg shadow-orange-500/20 hover:-translate-y-1 transition-all duration-300 min-w-[200px]">
                     <div className="bg-white/20 p-2 rounded-full">
-                        <Instagram className="w-5 h-5 text-white" />
+                        <InstagramIcon className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-left leading-none">
                         <p className="text-[10px] text-white/80 font-bold uppercase tracking-wide mb-1">Novedades</p>
@@ -77,14 +74,13 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito }) => {
                 {/* Botón Facebook (Azul Estático) */}
                 <a href="https://www.facebook.com/fgstoreec" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 px-6 py-4 bg-[#1877F2] text-white rounded-2xl shadow-lg shadow-blue-500/20 hover:-translate-y-1 transition-all duration-300 min-w-[200px]">
                     <div className="bg-white/20 p-2 rounded-full">
-                        <Facebook className="w-5 h-5 text-white" />
+                          <FacebookIcon className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-left leading-none">
                         <p className="text-[10px] text-blue-100 font-bold uppercase tracking-wide mb-1">Comunidad</p>
                         <p className="font-bold text-base">Facebook</p>
                     </div>
                 </a>
-
             </div>
          </div>
       </div>
