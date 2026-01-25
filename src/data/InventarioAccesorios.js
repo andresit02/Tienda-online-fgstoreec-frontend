@@ -102,7 +102,7 @@ export const INVENTARIO_ACCESORIOS = [
     nombre: "LLAVERO BIKER",
     precio: 4,
     categoria: "Llaveros",
-    stock: 0, // Agotado para probar filtro
+    stock: 1, // Agotado para probar filtro
     destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769325698/imgi_43_store_01JPB7BHTY6WKC6WA5QMHVK4B6_2Fassets_2F1745338659602-9fc58f43-9852-4dd2-8820-064ee263f3e8_xzpcla.png",
@@ -121,7 +121,7 @@ export const INVENTARIO_ACCESORIOS = [
     nombre: "LLAVERO BIKER",
     precio: 4,
     categoria: "Llaveros",
-    stock: 0, // Agotado para probar filtro
+    stock: 1, // Agotado para probar filtro
     destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769327050/store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1742781792001-whatsappimage2025-03-08at4.41.42pm_we6nfl.avif",
@@ -136,7 +136,7 @@ export const INVENTARIO_ACCESORIOS = [
     nombre: "LLAVERO BIKER",
     precio: 4,
     categoria: "Llaveros",
-    stock: 0, // Agotado para probar filtro
+    stock: 1, // Agotado para probar filtro
     destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769325647/imgi_106_store_01JPB7BHTY6WKC6WA5QMHVK4B6_2Fassets_2F1745339263426-b763cfb1-d989-4987-948d-560ef2c75d35_pqpjp5.png",

@@ -6,23 +6,18 @@ const Catalogo = ({
   titulo,
   subtitulo,
   agregarAlCarrito,
-  onSelectProducto
+  onSelectProducto,
+  esAccesorios = false // FIX: Recibimos esto explícitamente para evitar errores si la lista está vacía
 }) => {
   // --- DETECCIÓN DE TIPO DE INVENTARIO ---
   const esHotWheels = useMemo(() => productosIniciales.some(p => p.categoria === 'Hot Wheels'), [productosIniciales]);
   
-  // Detección para Accesorios: Verificamos si NO tienen 'marca' ni 'escala' (propio del JSON de accesorios)
-  // O simplemente si la categoría no es de vehículo estándar.
-  const esAccesorios = useMemo(() => 
-    productosIniciales.length > 0 && !productosIniciales[0].hasOwnProperty('marca') && !productosIniciales[0].hasOwnProperty('fabricante'),
-  [productosIniciales]);
-
   // --- ESTADOS DE FILTROS ---
   const [busqueda, setBusqueda] = useState("");
-  const [marcasSeleccionadas, setMarcasSeleccionadas] = useState([]);      // Vehículos
-  const [fabricantesSeleccionados, setFabricantesSeleccionados] = useState([]); // Motos/Autos
-  const [seriesSeleccionadas, setSeriesSeleccionadas] = useState([]);      // Hot Wheels
-  const [tiposAccesoriosSeleccionados, setTiposAccesoriosSeleccionados] = useState([]); // Accesorios (campo categoria)
+  const [marcasSeleccionadas, setMarcasSeleccionadas] = useState([]);      
+  const [fabricantesSeleccionados, setFabricantesSeleccionados] = useState([]); 
+  const [seriesSeleccionadas, setSeriesSeleccionadas] = useState([]);      
+  const [tiposAccesoriosSeleccionados, setTiposAccesoriosSeleccionados] = useState([]); 
   const [escalasSeleccionadas, setEscalasSeleccionadas] = useState([]);
   
   const [filtroDisponibilidad, setFiltroDisponibilidad] = useState({
@@ -45,8 +40,9 @@ const Catalogo = ({
 
   // --- 1. EXTRAER OPCIONES ÚNICAS ---
   
-  // Para Vehículos
+  // FIX: Cambiado 'marcaVehiculo' por 'marca' para coincidir con tus nuevos archivos
   const marcasDisponibles = useMemo(() => esAccesorios ? [] : [...new Set(productosIniciales.map(p => p.marca || "Otras"))].sort(), [productosIniciales, esAccesorios]);
+  
   const fabricantesDisponibles = useMemo(() => (esHotWheels || esAccesorios) ? [] : [...new Set(productosIniciales.map(p => p.fabricante))].sort(), [productosIniciales, esHotWheels, esAccesorios]);
   const seriesDisponibles = useMemo(() => esHotWheels ? ["Basicos", "Silver Series", "Premium"] : [], [esHotWheels]);
   const escalasDisponibles = useMemo(() => esAccesorios ? [] : [...new Set(productosIniciales.map(p => p.escala))].sort(), [productosIniciales, esAccesorios]);
@@ -81,13 +77,12 @@ const Catalogo = ({
         return coincideTexto && coincideStock && coincideTipo;
     } else {
         // Filtros de Vehículos
+        // FIX: Cambiado 'marcaVehiculo' por 'marca'
         const marcaProd = p.marca || "Otras";
         const coincideMarca = marcasSeleccionadas.length === 0 || marcasSeleccionadas.includes(marcaProd);
         
         const coincideFabricante = esHotWheels ? true : (fabricantesSeleccionados.length === 0 || fabricantesSeleccionados.includes(p.fabricante));
-        
         const coincideSerie = !esHotWheels ? true : (seriesSeleccionadas.length === 0 || (p.serie && seriesSeleccionadas.includes(p.serie)));
-        
         const coincideEscala = escalasSeleccionadas.length === 0 || escalasSeleccionadas.includes(p.escala);
 
         return coincideTexto && coincideStock && coincideMarca && coincideFabricante && coincideSerie && coincideEscala;
@@ -246,22 +241,20 @@ const Catalogo = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     {productosProcesados.map((producto, index) => {
                         const tieneStock = producto.stock > 0;
-                        // Key única combinada
                         const categoriaKey = producto.categoria || 'acc';
                         const uniqueKey = `${categoriaKey}-${producto.id}-${index}`;
                         
-                        // Lógica de etiqueta secundaria (Marca, Serie o Categoria para Accesorios)
                         let etiquetaSecundaria = "";
                         if (esHotWheels) etiquetaSecundaria = producto.serie;
-                        else if (esAccesorios) etiquetaSecundaria = producto.categoria; // En accesorios mostramos el Tipo (Llaveros, etc)
+                        else if (esAccesorios) etiquetaSecundaria = producto.categoria; 
                         else etiquetaSecundaria = producto.fabricante;
 
                         return (
                             <div key={uniqueKey} onClick={() => onSelectProducto?.(producto)} className="group bg-white rounded-xl border border-slate-100 hover:shadow-xl flex flex-col overflow-hidden cursor-pointer relative">
                                 <div className="relative h-60 bg-slate-50 flex items-center justify-center p-6 overflow-hidden">
-                                    {/* En accesorios NO mostramos escala en la imagen, en otros si */}
-                                    {!esAccesorios && <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-bold px-2 py-1 rounded border border-slate-200 z-10 text-slate-600">{producto.escala}</span>}
                                     
+                                    {/* FIX: ELIMINADO EL SPAN DE ESCALA ENCIMA DE LA IMAGEN COMO PEDISTE */}
+
                                     <img src={producto.imagenes?.principal} alt={producto.nombre} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" onError={(e) => e.currentTarget.src = "/img/placeholder.png"} />
                                 </div>
                                 <div className="p-5 flex-1 flex flex-col">
