@@ -7,8 +7,8 @@ export const INVENTARIO_HOTWHEELS = [
     escala: "1:43",
     precio: 60,
     categoria: "Hot Wheels",
-    stock: 0,
-    destacado: false,
+    stock: 1,
+    destacado: true,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769291734/WhatsApp_Image_2026-01-24_at_4.35.22_PAAM_l4tfvw.jpg",
       galeria: [
@@ -74,7 +74,7 @@ export const INVENTARIO_HOTWHEELS = [
     precio: 18,
     categoria: "Hot Wheels",
     stock: 1,
-    destacado: false,
+    destacado: true,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769291852/WhatsApp_Image_2026-01-24_at_4.42.52_PM_rkchkv.jpg",
       galeria: [

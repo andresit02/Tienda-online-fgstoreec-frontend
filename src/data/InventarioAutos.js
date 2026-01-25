@@ -37,7 +37,7 @@ export const INVENTARIO_AUTOS = [
     precio: 35,
     categoria: "Auto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769287289/imgi_9_550_hemjdm.png",
       galeria: [
@@ -66,7 +66,7 @@ export const INVENTARIO_AUTOS = [
     precio: 35,
     categoria: "Auto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769288070/imgi_255_31517W__27049.1528474017.1200.1200_qn1jak.jpg",
       galeria: [
@@ -93,7 +93,7 @@ export const INVENTARIO_AUTOS = [
     precio: 35,
     categoria: "Auto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769288528/imgi_62_QQ20240405090205__01161_igji4p.png",
       galeria: [
@@ -119,7 +119,7 @@ export const INVENTARIO_AUTOS = [
     precio: 45,
     categoria: "Auto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769289221/imgi_2_f54acdf9-fc63-43d3-9233-76677b5e65b7-1000x1000-VODLCMKjPjHFKhNmzk9aGA9qhUCfGFWhWIzZ2XsT_v4npmf.png",
       galeria: [

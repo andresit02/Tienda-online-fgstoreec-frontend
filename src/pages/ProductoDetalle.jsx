@@ -4,12 +4,16 @@ import { ArrowLeft, Check } from "lucide-react";
 function ProductoDetalle({ producto, onVolver, agregarAlCarrito }) {
   const [imagenActiva, setImagenActiva] = useState(producto?.imagenes?.principal);
 
-  if (!producto) return null; // Validación simple
+  if (!producto) return null;
 
   const tieneStock = producto.stock > 0;
   const listaImagenes = producto.imagenes?.galeria 
     ? [producto.imagenes.principal, ...producto.imagenes.galeria] 
     : [producto.imagenes.principal];
+
+  // Helper para saber si es accesorio (si no tiene marca definida)
+  const esAccesorio = !producto.marca && !producto.fabricante;
+  const esHotWheels = producto.categoria === 'Hot Wheels';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 animate-fade-in font-sans">
@@ -47,18 +51,13 @@ function ProductoDetalle({ producto, onVolver, agregarAlCarrito }) {
           <h2 className="text-xl font-extrabold text-slate-900 mt-10 mb-4">Características</h2>
           <div className="space-y-3 text-slate-700 text-sm md:text-base">
             
-            {/* LÓGICA DE CAMPOS SEGÚN TIPO */}
-            {producto.fabricante && (
-                <p><strong>Fabricante:</strong> {producto.fabricante}</p>
-            )}
-            
-            {producto.serie && (
-                <p><strong>Serie:</strong> {producto.serie}</p>
-            )}
-
-            {/* Cambio: marcaVehiculo -> marca */}
-            <p><strong>Marca:</strong> {producto.marca}</p>
-            <p><strong>Escala:</strong> {producto.escala}</p>
+            {/* Solo mostramos si existen las propiedades */}
+            {producto.fabricante && <p><strong>Fabricante:</strong> {producto.fabricante}</p>}
+            {producto.serie && <p><strong>Serie:</strong> {producto.serie}</p>}
+            {producto.marca && <p><strong>Marca:</strong> {producto.marca}</p>}
+            {producto.escala && <p><strong>Escala:</strong> {producto.escala}</p>}
+            {/* En Accesorios, 'categoria' es el Tipo, lo mostramos */}
+            {esAccesorio && <p><strong>Tipo:</strong> {producto.categoria}</p>}
 
             {producto.caracteristicas.map((c, idx) => (
               <p key={idx} className="flex items-center gap-2">
@@ -66,21 +65,13 @@ function ProductoDetalle({ producto, onVolver, agregarAlCarrito }) {
               </p>
             ))}
 
-              {/* --- INICIO DEL CAMBIO: Líneas nuevas --- */}
-          {/* Solo mostramos Materiales y Medidas si NO es Hot Wheels */}
-          {producto.categoria !== 'Hot Wheels' && (
-            <>
-              <p className="mt-4">
-                <strong>Materiales:</strong> {producto.materiales}
-              </p>
-
-              <p>
-                <strong>Medidas de la caja (cm):</strong>{" "}
-                {producto.medidasCaja?.texto || "No especificado"}
-              </p>
-            </>
-          )}
-          {/* --- FIN DEL CAMBIO --- */}
+            {/* Ocultar Materiales y Medidas para Hot Wheels Y Accesorios (si no lo tienen) */}
+            {!esHotWheels && !esAccesorio && (
+              <>
+                <p className="mt-4"><strong>Materiales:</strong> {producto.materiales}</p>
+                <p><strong>Medidas de la caja (cm):</strong> {producto.medidasCaja?.texto || "No especificado"}</p>
+              </>
+            )}
           </div>
 
           <button onClick={() => tieneStock && agregarAlCarrito(producto)} disabled={!tieneStock} className={`mt-10 w-full py-4 rounded-xl font-bold transition shadow-lg ${tieneStock ? 'bg-slate-900 text-white hover:bg-red-600 hover:shadow-red-600/30' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>

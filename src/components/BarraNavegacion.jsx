@@ -13,7 +13,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Link de Escritorio con estilo (MANTENIENDO NEGRITA)
+  // Link de Escritorio con estilo
   const NavLink = ({ text, onClick, active, isHot = false, icon: Icon }) => (
     <button 
       onClick={onClick} 
@@ -35,7 +35,6 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
     <>
       {/* ===================== 1. TOP BAR ===================== */}
       <div className="bg-slate-900 text-white text-xs md:text-sm font-black tracking-wider uppercase py-3 text-center relative z-50">
-        {/* MODIFICACIÓN: Cambiado 'container' por 'max-w-7xl' y ajustado padding para alinear con el Nav */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-center items-center gap-2 md:gap-8">
             <span className="flex items-center gap-2">
@@ -54,11 +53,6 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
           ${isScrolled ? 'shadow-md py-3' : 'py-4 md:py-6'} 
         `}
       >
-        {/* MODIFICACIÓN DE DISTRIBUCIÓN: 
-            1. Usamos 'max-w-7xl' en lugar de container para limitar el ancho en pantallas gigantes.
-            2. Añadimos 'mx-auto' para centrar todo el bloque.
-            3. Aumentamos el padding 'lg:px-8' para empujar los elementos hacia adentro visualmente.
-        */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             
@@ -75,7 +69,6 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
             </div>
 
             {/* NAVEGACIÓN CENTRAL - Desktop */}
-            {/* Mantenemos flex-1 para que ocupe el espacio central, pero el contenedor padre ya limita que se separen demasiado */}
             <div className="hidden lg:flex items-center justify-center flex-1 mx-4 xl:mx-8">
               <div className="flex items-center justify-center gap-5 xl:gap-8">
                 <NavLink text="Inicio" onClick={() => setVistaActual('inicio')} active={vistaActual === 'inicio'} />
@@ -88,6 +81,13 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
                   active={vistaActual === 'hotwheels'} 
                   isHot={true} 
                   icon={Flame} 
+                />
+
+                {/* --- NUEVO LINK ACCESORIOS --- */}
+                <NavLink 
+                  text="ACCESORIOS" 
+                  onClick={() => setVistaActual('accesorios')} 
+                  active={vistaActual === 'accesorios'} 
                 />
                 
                 <NavLink text="ENVÍOS" onClick={() => setVistaActual('pruebas')} active={vistaActual === 'pruebas'} />
@@ -136,7 +136,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
         </div>
       </nav>
 
-      {/* ===================== 3. MENÚ MÓVIL (Sin cambios de lógica) ===================== */}
+      {/* ===================== 3. MENÚ MÓVIL ===================== */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -193,6 +193,13 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
                   icon={Flame}
                 />
 
+                {/* --- NUEVO LINK MÓVIL ACCESORIOS --- */}
+                <MobileLink 
+                  onClick={() => {setVistaActual('accesorios'); setIsMobileMenuOpen(false)}} 
+                  text="ACCESORIOS" 
+                  active={vistaActual === 'accesorios'}
+                />
+
                 <MobileLink 
                   onClick={() => {setVistaActual('pruebas'); setIsMobileMenuOpen(false)}} 
                   text="ENVÍOS" 
@@ -236,7 +243,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
   );
 }
 
-// Componente auxiliar móvil sin cambios
+// Componente auxiliar móvil
 const MobileLink = ({ text, onClick, active = false, isHot = false, icon: Icon }) => (
   <button 
     onClick={onClick} 

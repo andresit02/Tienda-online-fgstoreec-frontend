@@ -5,11 +5,13 @@ import {WhatsappIcon} from './SocialMediaIcons';
 const CarritoLateral = ({ abierto, cerrar, carrito, total, eliminarItem, actualizarCantidad }) => {
   
   const finalizarCompraWhatsApp = () => {
-    const numeroTelefono = "593999999999"; // ¡PON TU NÚMERO AQUÍ!
+    const numeroTelefono = "593958866618"; // He actualizado tu número aquí basado en el contexto previo
     let mensaje = "Hola FG Store! 👋 Quisiera confirmar este pedido:%0A%0A";
     
     carrito.forEach(item => {
-      mensaje += `▪️ ${item.cantidad}x ${item.nombre} (${item.escala}) - $${(item.precio * item.cantidad).toFixed(2)}%0A`;
+      // Ajuste opcional: Mostrar Marca si existe, o Fabricante, o Serie para HotWheels
+      const detalle = item.categoria === 'Hot Wheels' ? item.serie : item.marca;
+      mensaje += `▪️ ${item.cantidad}x ${item.nombre} (${detalle || ''}) - $${(item.precio * item.cantidad).toFixed(2)}%0A`;
     });
     
     mensaje += `%0A💰 *TOTAL: $${total.toFixed(2)}*%0A`;
@@ -44,13 +46,23 @@ const CarritoLateral = ({ abierto, cerrar, carrito, total, eliminarItem, actuali
               </div>
             ) : (
               carrito.map(item => (
-                <div key={item.id} className="flex gap-4 p-3 rounded-xl border border-slate-100 bg-white shadow-sm">
+                <div key={`${item.categoria}-${item.id}`} className="flex gap-4 p-3 rounded-xl border border-slate-100 bg-white shadow-sm">
+                  {/* CORRECCIÓN DE IMAGEN AQUÍ ABAJO */}
                   <div className="w-20 h-20 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={item.imagen} alt={item.nombre} className="w-full h-full object-cover" />
+                    <img 
+                        src={item.imagenes?.principal || "/img/placeholder.png"} 
+                        alt={item.nombre} 
+                        className="w-full h-full object-cover" 
+                    />
                   </div>
+                  
                   <div className="flex-1">
                     <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{item.nombre}</h4>
-                    <p className="text-xs text-slate-500 mb-2">{item.marca}</p>
+                    {/* Ajustamos para mostrar la 'marca' (ej: Yamaha) o 'serie' si es Hot Wheels */}
+                    <p className="text-xs text-slate-500 mb-2">
+                        {item.categoria === 'Hot Wheels' ? item.serie : item.marca}
+                    </p>
+                    
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 bg-slate-50 rounded-lg px-2 py-1">
                         <button onClick={() => actualizarCantidad(item.id, -1)} className="text-slate-400 hover:text-slate-900 font-bold px-2">-</button>

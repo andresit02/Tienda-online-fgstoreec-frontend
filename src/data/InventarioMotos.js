@@ -8,7 +8,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769095533/D_NQ_NP_2X_629279-MLU73267337297_122023-F_qp3zhr.webp",
       galeria: [
@@ -90,12 +90,12 @@ export const INVENTARIO_MOTOS = [
     id: 4,
     nombre: "BMW S1000RR",
     fabricante: "Maisto",
-    marca: "BMW",
+    marca: "Bmw",
     escala: "1:12",
     precio: 32,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769156918/imgi_38_97d3c770-e8c7-4cf5-87aa-f02c381bf638_h4aayt.png",
       galeria: [
@@ -126,7 +126,7 @@ export const INVENTARIO_MOTOS = [
     precio: 32,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769157026/imgi_103_5e050b26-a204-45a0-9a48-79ca1f3ad18f_lx94ib.png",
       galeria: [
@@ -155,7 +155,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769157189/imgi_105_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1742670300109-s-l16006_vtxntf.jpg",
       galeria: [
@@ -185,7 +185,7 @@ export const INVENTARIO_MOTOS = [
     precio: 40,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769157316/imgi_6_749e3f84-ac47-40fa-89a8-739be02614be_ictfb4.jpg",
       galeria: [
@@ -242,7 +242,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769157889/imgi_71_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744818279232-d_nq_np_981066-mla80813200403_112024-f_uyfzje.jpg",
       galeria: [
@@ -272,7 +272,7 @@ export const INVENTARIO_MOTOS = [
     precio: 26,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769157999/imgi_40_f0eb8108-d056-4706-bc61-32f55e50df6e_whj3rz.jpg",
       galeria: [
@@ -300,7 +300,7 @@ export const INVENTARIO_MOTOS = [
     precio: 26,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769158082/imgi_39_3af1fbb3-0dc5-489f-ab28-d94945636bb2_lxpa3t.jpg",
       galeria: [
@@ -330,7 +330,7 @@ export const INVENTARIO_MOTOS = [
     precio: 30,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769158449/imgi_226_71JJy4gqAwL._AC_SL1500__hbjtpb.jpg",
       galeria: [
@@ -360,7 +360,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769280090/imgi_111_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744781954902-322723yl-box__98571_dsv5dh.jpg",
       galeria: [
@@ -391,7 +391,7 @@ export const INVENTARIO_MOTOS = [
     precio: 150,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769280883/imgi_84_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744780265195-principal_jekqnx.png",
       galeria: [
@@ -427,7 +427,7 @@ export const INVENTARIO_MOTOS = [
     precio: 40,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769283174/imgi_87_store_01JPB7BHTY6WKC6WA5QMHVK4B6_2Fassets_2F1744778392400-photo_4900183503346445908_y_sghz5v.png",
       galeria: [
@@ -461,7 +461,7 @@ export const INVENTARIO_MOTOS = [
     precio: 42.5,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769284061/imgi_101_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1742667960396-d_nq_np_821573-mco73738483470_012024-f_ajruza.jpg",
       galeria: [
@@ -492,7 +492,7 @@ export const INVENTARIO_MOTOS = [
     precio: 60,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769285004/imgi_47_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1745415635699-d_nq_np_964935-mlm83044983696_032025-f_bu3st8.jpg",
       galeria: [
@@ -520,7 +520,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769285189/imgi_93_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1742668983604-photo_5114261419456572868_y_ufymoa.jpg",
       galeria: [
@@ -548,7 +548,7 @@ export const INVENTARIO_MOTOS = [
     precio: 40,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769285363/imgi_82_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744782845041-photo_4900183503346445933_y_y0epnc.jpg",
       galeria: [
@@ -580,7 +580,7 @@ export const INVENTARIO_MOTOS = [
     precio: 32,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769285731/imgi_115_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744818186763-s-l16002_jsxqhq.jpg",
       galeria: [
@@ -610,7 +610,7 @@ export const INVENTARIO_MOTOS = [
     precio: 30,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769317979/imgi_2_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744820669508-d_nq_np_955265-mlm83449430735_032025-f_w3kiuh.jpg",
       galeria: [
@@ -639,7 +639,7 @@ export const INVENTARIO_MOTOS = [
     precio: 30,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769318267/imgi_102_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744819810161-d_nq_np_616251-mlm83448663239_032025-f_vcyyjx.jpg",
       galeria: [
@@ -668,7 +668,7 @@ export const INVENTARIO_MOTOS = [
     precio: 40,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769318776/imgi_73_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744821434296-d_nq_np_666941-cbt83405275211_032025-f-compatible-con-yamaha-r6-112-miniatura-metal-moto-con_cpumqd.jpg",
       galeria: [
@@ -698,7 +698,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769319364/WhatsApp_Image_2026-01-25_at_12.30.43_AM_xyac25.jpg",
       galeria: [
@@ -727,7 +727,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769319569/kawasaki-kx-450f-cross-model-do-skladania-1-12-maisto-b-iext145360765_yv1qqh.jpg",
       galeria: [
@@ -756,7 +756,7 @@ export const INVENTARIO_MOTOS = [
     precio: 45,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769319878/imgi_103_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744825560293-ny58323-box__84122_z0hyw1.jpg",
       galeria: [
@@ -784,7 +784,7 @@ export const INVENTARIO_MOTOS = [
     precio: 45,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769319881/imgi_61_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744825540336-guest_adf345b0-e816-414d-94fc-998bc10cd6f2_v8jxrw.jpg",
       galeria: [
@@ -812,7 +812,7 @@ export const INVENTARIO_MOTOS = [
     precio: 45,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769319872/imgi_102_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744825548572-d_nq_np_761629-mpe82707664366_032025-f-yamaha-yz450f-coope-webb-moto-a-escala-112_r9tpcd.jpg",
       galeria: [
@@ -840,7 +840,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769319683/imgi_72_store_01JPB7BHTY6WKC6WA5QMHVK4B6_assets_1744823234701-photo_4900183503346445978_y_bkbpsc.jpg",
       galeria: [
@@ -869,7 +869,7 @@ export const INVENTARIO_MOTOS = [
     precio: 30,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769320320/00009015932709L_t55ymg.webp",
       galeria: [
@@ -898,7 +898,7 @@ export const INVENTARIO_MOTOS = [
     precio: 28,
     categoria: "Moto",
     stock: 1,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769320368/32724_d4q2tj.jpg",
       galeria: [
@@ -927,7 +927,7 @@ export const INVENTARIO_MOTOS = [
     precio: 40,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769320712/imgi_293_welly-1-12-kawasaki-ninja-zx-10r-motorcycle-alloy-model-car-1_1024x_xvmyq3.jpg",
       galeria: [
@@ -956,7 +956,7 @@ export const INVENTARIO_MOTOS = [
     precio: 35,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769321700/imgi_8_491443453_1193125972451972_2102806594865115478_n_uombcp.jpg",
       galeria: [
@@ -986,7 +986,7 @@ export const INVENTARIO_MOTOS = [
     precio: 40,
     categoria: "Moto",
     stock: 0,
-    destacado: true,
+    destacado: false,
     imagenes: {
       principal: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769321587/imgi_9_491437373_980146844306377_1502920258397429977_n_t6wtdf.jpg",
       galeria: [

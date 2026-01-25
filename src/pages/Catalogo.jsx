@@ -3,30 +3,28 @@ import { Search, ShoppingCart, CheckCircle, Filter, X } from 'lucide-react';
 
 const Catalogo = ({
   productosIniciales = [],
+  titulo,
+  subtitulo,
   agregarAlCarrito,
   onSelectProducto
 }) => {
   // --- DETECCIÓN DE TIPO DE INVENTARIO ---
-  // Detectamos si este catálogo es de Hot Wheels para adaptar los filtros
-  const esHotWheels = useMemo(() => 
-    productosIniciales.some(p => p.categoria === 'Hot Wheels'), 
+  const esHotWheels = useMemo(() => productosIniciales.some(p => p.categoria === 'Hot Wheels'), [productosIniciales]);
+  
+  // Detección para Accesorios: Verificamos si NO tienen 'marca' ni 'escala' (propio del JSON de accesorios)
+  // O simplemente si la categoría no es de vehículo estándar.
+  const esAccesorios = useMemo(() => 
+    productosIniciales.length > 0 && !productosIniciales[0].hasOwnProperty('marca') && !productosIniciales[0].hasOwnProperty('fabricante'),
   [productosIniciales]);
 
   // --- ESTADOS DE FILTROS ---
   const [busqueda, setBusqueda] = useState("");
-  
-  // Filtro Marca (Antes marcaVehiculo) - Aplica a todos
-  const [marcasSeleccionadas, setMarcasSeleccionadas] = useState([]);
-  
-  // Filtro Fabricante - Solo para Autos y Motos
-  const [fabricantesSeleccionados, setFabricantesSeleccionados] = useState([]); 
-  
-  // Filtro Serie - Solo para Hot Wheels (Basicos, Silver, Premium)
-  const [seriesSeleccionadas, setSeriesSeleccionadas] = useState([]);
-
+  const [marcasSeleccionadas, setMarcasSeleccionadas] = useState([]);      // Vehículos
+  const [fabricantesSeleccionados, setFabricantesSeleccionados] = useState([]); // Motos/Autos
+  const [seriesSeleccionadas, setSeriesSeleccionadas] = useState([]);      // Hot Wheels
+  const [tiposAccesoriosSeleccionados, setTiposAccesoriosSeleccionados] = useState([]); // Accesorios (campo categoria)
   const [escalasSeleccionadas, setEscalasSeleccionadas] = useState([]);
   
-  // Filtro Disponibilidad - Ahora con dos items
   const [filtroDisponibilidad, setFiltroDisponibilidad] = useState({
     disponibles: false,
     agotados: false
@@ -34,11 +32,12 @@ const Catalogo = ({
   
   const [mostrarFiltrosMovil, setMostrarFiltrosMovil] = useState(false);
 
-  // Limpiar filtros al cambiar de inventario
+  // Limpiar filtros al cambiar de sección
   useEffect(() => {
     setMarcasSeleccionadas([]);
     setFabricantesSeleccionados([]);
     setSeriesSeleccionadas([]);
+    setTiposAccesoriosSeleccionados([]);
     setEscalasSeleccionadas([]);
     setFiltroDisponibilidad({ disponibles: false, agotados: false });
     setBusqueda("");
@@ -46,85 +45,68 @@ const Catalogo = ({
 
   // --- 1. EXTRAER OPCIONES ÚNICAS ---
   
-  // Marca (Global) - Reemplaza marcaVehiculo
-  const marcasDisponibles = useMemo(() => 
-    [...new Set(productosIniciales.map(p => p.marca || "Otras"))].sort(), 
-  [productosIniciales]);
+  // Para Vehículos
+  const marcasDisponibles = useMemo(() => esAccesorios ? [] : [...new Set(productosIniciales.map(p => p.marca || "Otras"))].sort(), [productosIniciales, esAccesorios]);
+  const fabricantesDisponibles = useMemo(() => (esHotWheels || esAccesorios) ? [] : [...new Set(productosIniciales.map(p => p.fabricante))].sort(), [productosIniciales, esHotWheels, esAccesorios]);
+  const seriesDisponibles = useMemo(() => esHotWheels ? ["Basicos", "Silver Series", "Premium"] : [], [esHotWheels]);
+  const escalasDisponibles = useMemo(() => esAccesorios ? [] : [...new Set(productosIniciales.map(p => p.escala))].sort(), [productosIniciales, esAccesorios]);
 
-  // Fabricante (Solo Autos/Motos)
-  const fabricantesDisponibles = useMemo(() => 
-    esHotWheels ? [] : [...new Set(productosIniciales.map(p => p.fabricante))].sort(), 
-  [productosIniciales, esHotWheels]);
-
-  // Series (Solo Hot Wheels)
-  const seriesDisponibles = useMemo(() => 
-    esHotWheels ? ["Basicos", "Silver Series", "Premium"] : [], 
-  [esHotWheels]);
-
-  const escalasDisponibles = useMemo(() => 
-    [...new Set(productosIniciales.map(p => p.escala))].sort(), 
-  [productosIniciales]);
+  // Para Accesorios: Usamos el campo 'categoria' como "Tipo"
+  const tiposAccesoriosDisponibles = useMemo(() => esAccesorios ? [...new Set(productosIniciales.map(p => p.categoria))].sort() : [], [productosIniciales, esAccesorios]);
 
   // --- 2. HELPERS ---
   const toggleFiltro = (item, listaActual, setLista) => {
-    if (listaActual.includes(item)) {
-      setLista(listaActual.filter(i => i !== item));
-    } else {
-      setLista([...listaActual, item]);
-    }
+    if (listaActual.includes(item)) setLista(listaActual.filter(i => i !== item));
+    else setLista([...listaActual, item]);
   };
 
   const toggleDisponibilidad = (tipo) => {
-    setFiltroDisponibilidad(prev => ({
-      ...prev,
-      [tipo]: !prev[tipo]
-    }));
+    setFiltroDisponibilidad(prev => ({ ...prev, [tipo]: !prev[tipo] }));
   };
 
   // --- 3. LÓGICA DE FILTRADO ---
   const productosProcesados = productosIniciales.filter(p => {
-    // Texto
+    // 0. Texto
     const coincideTexto = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
     
-    // 1. Marca (Global)
-    const marcaProd = p.marca || "Otras";
-    const coincideMarca = marcasSeleccionadas.length === 0 || marcasSeleccionadas.includes(marcaProd);
-
-    // 2. Fabricante (No aplica en Hot Wheels)
-    const coincideFabricante = esHotWheels 
-        ? true 
-        : (fabricantesSeleccionados.length === 0 || fabricantesSeleccionados.includes(p.fabricante));
-
-    // 3. Serie (Solo Hot Wheels)
-    const coincideSerie = !esHotWheels
-        ? true
-        : (seriesSeleccionadas.length === 0 || (p.serie && seriesSeleccionadas.includes(p.serie)));
-
-    // 4. Escala
-    const coincideEscala = escalasSeleccionadas.length === 0 || escalasSeleccionadas.includes(p.escala);
-
-    // 5. Disponibilidad (Dos items: Disponibles, Agotados)
-    // Si ninguno está seleccionado, mostramos todos. Si ambos, todos. Si uno, filtramos.
+    // 1. Disponibilidad (Universal)
     let coincideStock = true;
-    if (filtroDisponibilidad.disponibles && !filtroDisponibilidad.agotados) {
-        coincideStock = p.stock > 0;
-    } else if (!filtroDisponibilidad.disponibles && filtroDisponibilidad.agotados) {
-        coincideStock = p.stock === 0;
-    }
+    if (filtroDisponibilidad.disponibles && !filtroDisponibilidad.agotados) coincideStock = p.stock > 0;
+    else if (!filtroDisponibilidad.disponibles && filtroDisponibilidad.agotados) coincideStock = p.stock === 0;
 
-    return coincideTexto && coincideMarca && coincideFabricante && coincideSerie && coincideEscala && coincideStock;
+    // --- FILTROS ESPECÍFICOS ---
+    if (esAccesorios) {
+        // Filtro de Accesorios: Solo "Tipo" (campo categoria)
+        const coincideTipo = tiposAccesoriosSeleccionados.length === 0 || tiposAccesoriosSeleccionados.includes(p.categoria);
+        return coincideTexto && coincideStock && coincideTipo;
+    } else {
+        // Filtros de Vehículos
+        const marcaProd = p.marca || "Otras";
+        const coincideMarca = marcasSeleccionadas.length === 0 || marcasSeleccionadas.includes(marcaProd);
+        
+        const coincideFabricante = esHotWheels ? true : (fabricantesSeleccionados.length === 0 || fabricantesSeleccionados.includes(p.fabricante));
+        
+        const coincideSerie = !esHotWheels ? true : (seriesSeleccionadas.length === 0 || (p.serie && seriesSeleccionadas.includes(p.serie)));
+        
+        const coincideEscala = escalasSeleccionadas.length === 0 || escalasSeleccionadas.includes(p.escala);
+
+        return coincideTexto && coincideStock && coincideMarca && coincideFabricante && coincideSerie && coincideEscala;
+    }
   });
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12 animate-fade-in font-sans">
       
+      {/* HEADER DE SECCIÓN */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{titulo}</h1>
+        {subtitulo && <p className="text-slate-500 mt-2">{subtitulo}</p>}
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* SIDEBAR FILTROS */}
-        <aside className={`
-            lg:w-1/4 lg:block 
-            ${mostrarFiltrosMovil ? 'fixed inset-0 z-50 bg-white p-6 overflow-y-auto' : 'hidden'}
-        `}>
+        <aside className={`lg:w-1/4 lg:block ${mostrarFiltrosMovil ? 'fixed inset-0 z-50 bg-white p-6 overflow-y-auto' : 'hidden'}`}>
             <div className="flex justify-between items-center lg:hidden mb-6">
                 <span className="font-bold text-xl">Filtros</span>
                 <button onClick={() => setMostrarFiltrosMovil(false)}><X /></button>
@@ -132,7 +114,7 @@ const Catalogo = ({
 
             <div className="space-y-8 pr-4">
                 
-                {/* 1. DISPONIBILIDAD (2 Items) */}
+                {/* 1. DISPONIBILIDAD (Universal) */}
                 <div>
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Disponibilidad</h3>
                     <div className="space-y-2">
@@ -152,85 +134,102 @@ const Catalogo = ({
                         </label>
                     </div>
                 </div>
-
                 <div className="w-full h-px bg-slate-100"></div>
 
-                {/* 2. ESCALA */}
-                <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Escala</h3>
-                    <div className="space-y-2">
-                        {escalasDisponibles.map(escala => (
-                            <label key={escala} className="flex items-center gap-3 cursor-pointer group">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${escalasSeleccionadas.includes(escala) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
-                                    {escalasSeleccionadas.includes(escala) && <CheckCircle size={14} className="text-white" />}
-                                </div>
-                                <input type="checkbox" className="hidden" checked={escalasSeleccionadas.includes(escala)} onChange={() => toggleFiltro(escala, escalasSeleccionadas, setEscalasSeleccionadas)} />
-                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{escala}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="w-full h-px bg-slate-100"></div>
-
-                {/* 3. MARCA (Ex-MarcaVehiculo) - GLOBAL */}
-                <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Marca</h3>
-                    <div className="space-y-2">
-                        {marcasDisponibles.map(marca => (
-                            <label key={marca} className="flex items-center gap-3 cursor-pointer group">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${marcasSeleccionadas.includes(marca) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
-                                    {marcasSeleccionadas.includes(marca) && <CheckCircle size={14} className="text-white" />}
-                                </div>
-                                <input type="checkbox" className="hidden" checked={marcasSeleccionadas.includes(marca)} onChange={() => toggleFiltro(marca, marcasSeleccionadas, setMarcasSeleccionadas)} />
-                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{marca}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="w-full h-px bg-slate-100"></div>
-
-                {/* 4. LÓGICA CONDICIONAL: FABRICANTE vs SERIE */}
-                
-                {esHotWheels ? (
-                    /* FILTRO SERIE (Solo Hot Wheels) */
-                    <div>
+                {/* --- FILTROS ESPECÍFICOS DE ACCESORIOS --- */}
+                {esAccesorios && (
+                     <div>
                         <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Tipo</h3>
                         <div className="space-y-2">
-                            {seriesDisponibles.map(serie => (
-                                <label key={serie} className="flex items-center gap-3 cursor-pointer group">
-                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${seriesSeleccionadas.includes(serie) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
-                                        {seriesSeleccionadas.includes(serie) && <CheckCircle size={14} className="text-white" />}
+                            {tiposAccesoriosDisponibles.map(tipo => (
+                                <label key={tipo} className="flex items-center gap-3 cursor-pointer group">
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${tiposAccesoriosSeleccionados.includes(tipo) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
+                                        {tiposAccesoriosSeleccionados.includes(tipo) && <CheckCircle size={14} className="text-white" />}
                                     </div>
-                                    <input type="checkbox" className="hidden" checked={seriesSeleccionadas.includes(serie)} onChange={() => toggleFiltro(serie, seriesSeleccionadas, setSeriesSeleccionadas)} />
-                                    <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{serie}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    /* FILTRO FABRICANTE (Motos/Autos) */
-                    <div>
-                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Fabricante</h3>
-                        <div className="space-y-2">
-                            {fabricantesDisponibles.map(fabricante => (
-                                <label key={fabricante} className="flex items-center gap-3 cursor-pointer group">
-                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${fabricantesSeleccionados.includes(fabricante) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
-                                        {fabricantesSeleccionados.includes(fabricante) && <CheckCircle size={14} className="text-white" />}
-                                    </div>
-                                    <input type="checkbox" className="hidden" checked={fabricantesSeleccionados.includes(fabricante)} onChange={() => toggleFiltro(fabricante, fabricantesSeleccionados, setFabricantesSeleccionados)} />
-                                    <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{fabricante}</span>
+                                    <input type="checkbox" className="hidden" checked={tiposAccesoriosSeleccionados.includes(tipo)} onChange={() => toggleFiltro(tipo, tiposAccesoriosSeleccionados, setTiposAccesoriosSeleccionados)} />
+                                    <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{tipo}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
                 )}
 
+                {/* --- FILTROS DE VEHÍCULOS (Solo si NO es accesorios) --- */}
+                {!esAccesorios && (
+                    <>
+                        {/* ESCALA */}
+                        <div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Escala</h3>
+                            <div className="space-y-2">
+                                {escalasDisponibles.map(escala => (
+                                    <label key={escala} className="flex items-center gap-3 cursor-pointer group">
+                                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${escalasSeleccionadas.includes(escala) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
+                                            {escalasSeleccionadas.includes(escala) && <CheckCircle size={14} className="text-white" />}
+                                        </div>
+                                        <input type="checkbox" className="hidden" checked={escalasSeleccionadas.includes(escala)} onChange={() => toggleFiltro(escala, escalasSeleccionadas, setEscalasSeleccionadas)} />
+                                        <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{escala}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="w-full h-px bg-slate-100"></div>
+
+                        {/* MARCA */}
+                        <div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Marca</h3>
+                            <div className="space-y-2">
+                                {marcasDisponibles.map(marca => (
+                                    <label key={marca} className="flex items-center gap-3 cursor-pointer group">
+                                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${marcasSeleccionadas.includes(marca) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
+                                            {marcasSeleccionadas.includes(marca) && <CheckCircle size={14} className="text-white" />}
+                                        </div>
+                                        <input type="checkbox" className="hidden" checked={marcasSeleccionadas.includes(marca)} onChange={() => toggleFiltro(marca, marcasSeleccionadas, setMarcasSeleccionadas)} />
+                                        <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{marca}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="w-full h-px bg-slate-100"></div>
+
+                        {/* FABRICANTE vs SERIE */}
+                        {esHotWheels ? (
+                            <div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Tipo</h3>
+                                <div className="space-y-2">
+                                    {seriesDisponibles.map(serie => (
+                                        <label key={serie} className="flex items-center gap-3 cursor-pointer group">
+                                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${seriesSeleccionadas.includes(serie) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
+                                                {seriesSeleccionadas.includes(serie) && <CheckCircle size={14} className="text-white" />}
+                                            </div>
+                                            <input type="checkbox" className="hidden" checked={seriesSeleccionadas.includes(serie)} onChange={() => toggleFiltro(serie, seriesSeleccionadas, setSeriesSeleccionadas)} />
+                                            <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{serie}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-3">Fabricante</h3>
+                                <div className="space-y-2">
+                                    {fabricantesDisponibles.map(fabricante => (
+                                        <label key={fabricante} className="flex items-center gap-3 cursor-pointer group">
+                                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${fabricantesSeleccionados.includes(fabricante) ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white'}`}>
+                                                {fabricantesSeleccionados.includes(fabricante) && <CheckCircle size={14} className="text-white" />}
+                                            </div>
+                                            <input type="checkbox" className="hidden" checked={fabricantesSeleccionados.includes(fabricante)} onChange={() => toggleFiltro(fabricante, fabricantesSeleccionados, setFabricantesSeleccionados)} />
+                                            <span className="text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-medium">{fabricante}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+
             </div>
         </aside>
 
-        {/* CONTENIDO DERECHO */}
+        {/* LISTADO PRODUCTOS */}
         <div className="lg:w-3/4 flex flex-col w-full">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
                 <button onClick={() => setMostrarFiltrosMovil(true)} className="lg:hidden w-full flex items-center justify-center gap-2 py-3 bg-slate-100 rounded-xl font-bold">
@@ -247,30 +246,32 @@ const Catalogo = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     {productosProcesados.map((producto, index) => {
                         const tieneStock = producto.stock > 0;
-                        // Usamos una key única combinada para seguridad en renderizado
-                        const uniqueKey = `${producto.categoria}-${producto.id}-${index}`;
+                        // Key única combinada
+                        const categoriaKey = producto.categoria || 'acc';
+                        const uniqueKey = `${categoriaKey}-${producto.id}-${index}`;
                         
+                        // Lógica de etiqueta secundaria (Marca, Serie o Categoria para Accesorios)
+                        let etiquetaSecundaria = "";
+                        if (esHotWheels) etiquetaSecundaria = producto.serie;
+                        else if (esAccesorios) etiquetaSecundaria = producto.categoria; // En accesorios mostramos el Tipo (Llaveros, etc)
+                        else etiquetaSecundaria = producto.fabricante;
+
                         return (
-                            <div
-                                key={uniqueKey}
-                                onClick={() => onSelectProducto?.(producto)} // Pasamos el OBJETO entero
-                                className="group bg-white rounded-xl border border-slate-100 hover:shadow-xl flex flex-col overflow-hidden cursor-pointer relative"
-                            >
+                            <div key={uniqueKey} onClick={() => onSelectProducto?.(producto)} className="group bg-white rounded-xl border border-slate-100 hover:shadow-xl flex flex-col overflow-hidden cursor-pointer relative">
                                 <div className="relative h-60 bg-slate-50 flex items-center justify-center p-6 overflow-hidden">
-                                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-bold px-2 py-1 rounded border border-slate-200 z-10 text-slate-600">{producto.escala}</span>
+                                    {/* En accesorios NO mostramos escala en la imagen, en otros si */}
+                                    {!esAccesorios && <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-bold px-2 py-1 rounded border border-slate-200 z-10 text-slate-600">{producto.escala}</span>}
+                                    
                                     <img src={producto.imagenes?.principal} alt={producto.nombre} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" onError={(e) => e.currentTarget.src = "/img/placeholder.png"} />
                                 </div>
                                 <div className="p-5 flex-1 flex flex-col">
                                     <div className="flex justify-between items-center mb-2">
                                         {tieneStock ? (
-                                            <span className="text-[12.2px] font-extrabold text-green-600 uppercase bg-green-50 px-0 py-0.5 rounded">Disponible</span>
+                                            <span className="text-[10px] font-extrabold text-green-600 uppercase bg-green-50 px-2 py-0.5 rounded">Disponible</span>
                                         ) : (
-                                            <span className="text-[12.2px] font-extrabold text-red-600 uppercase bg-red-50 px-2 py-0.5 rounded">Agotado</span>
+                                            <span className="text-[10px] font-extrabold text-red-600 uppercase bg-red-50 px-2 py-0.5 rounded">Agotado</span>
                                         )}
-                                        {/* CONDICIONAL DE UI: Si es Hot Wheels mostramos la SERIE, si no, el FABRICANTE */}
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                            {esHotWheels ? producto.serie : producto.fabricante}
-                                        </span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{etiquetaSecundaria}</span>
                                     </div>
                                     <h3 className="text-base font-bold text-slate-900 leading-tight mb-4 group-hover:text-red-600 transition-colors line-clamp-2">{producto.nombre}</h3>
                                     <div className="mt-auto flex items-center justify-between">
