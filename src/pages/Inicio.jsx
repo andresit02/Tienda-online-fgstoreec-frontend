@@ -67,7 +67,7 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-4 gap-4 lg:gap-6">
             {productos && productos.map((prod) => {
               // Lógica de stock para deshabilitar botón (pero NO la imagen)
               const tieneStock = prod.stock > 0;

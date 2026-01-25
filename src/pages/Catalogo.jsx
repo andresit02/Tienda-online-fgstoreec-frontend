@@ -238,7 +238,7 @@ const Catalogo = ({
             </div>
 
             {productosProcesados.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-6">
                     {productosProcesados.map((producto, index) => {
                         const tieneStock = producto.stock > 0;
                         const categoriaKey = producto.categoria || 'acc';
