@@ -50,10 +50,10 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
     {/* Título descriptivo (opcional pero profesional) */}
     <div className="text-center mb-6 sm:mb-8">
       <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-1">
-        Síguenos en Redes
+        Síguenos en nuestras redes oficiales
       </h2>
       <p className="text-xs sm:text-sm text-slate-600">
-        Únete a nuestra comunidad
+        No te pierdas nuestras últimas novedades y ofertas exclusivas
       </p>
     </div>
     
