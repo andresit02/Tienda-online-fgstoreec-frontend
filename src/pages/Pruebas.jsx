@@ -1,5 +1,6 @@
 import React from 'react';
-import { Truck, CheckCircle, MapPin, Package } from 'lucide-react';
+import { Truck, CheckCircle, MapPin, Package, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom'; // <--- IMPORTAR
 
 // Fotos de envíos realizados (guías de remisión)
 const ENVIOS_REALIZADOS = [
@@ -17,12 +18,22 @@ const ENVIOS_REALIZADOS = [
   { id: 12, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070396/imgi_44_photo_5174977332010659829_y-dOqa41gz6GFZgoK7_vhgcrm.png", ciudad: "Zumba", transporte: "Servientrega", guia: "9021468959"},
 ];
 
-const Pruebas = ({ setVistaActual }) => {
+const Pruebas = () => {
   return (
     <div className="animate-fade-in bg-slate-50 min-h-screen">
       
+      {/* BOTÓN VOLVER (NUEVO) */}
+      <div className="max-w-7xl mx-auto px-6 pt-8">
+        <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-900 font-bold transition-colors shadow-sm"
+        >
+            <ArrowLeft size={18} /> Volver al Inicio
+        </Link>
+      </div>
+
       {/* HEADER DE LA SECCIÓN */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-white border-b border-slate-200 mt-6">
         <div className="max-w-7xl mx-auto px-6 py-12 md:py-16 text-center">
           <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">
             Referencias de <span className="text-red-600">Envíos</span>
@@ -51,7 +62,6 @@ const Pruebas = ({ setVistaActual }) => {
 
       {/* GRID DE FOTOS DE GUÍAS */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
-        {/* 2 columnas en móvil, 3 en PC */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-8">
           {ENVIOS_REALIZADOS.map((item) => (
             <div
@@ -59,7 +69,6 @@ const Pruebas = ({ setVistaActual }) => {
               className="group bg-white rounded-xl md:rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300"
             >
 
-              {/* Imagen: Altura ajustada para móvil (h-40) */}
               <div className="relative h-40 md:h-64 overflow-hidden bg-slate-100 cursor-zoom-in">
                 <img
                   src={item.img}
@@ -67,20 +76,17 @@ const Pruebas = ({ setVistaActual }) => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
-                {/* Overlay (Solo en PC al hover para no tapar en móvil) */}
                 <div className="hidden md:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center">
                   <p className="text-white font-semibold text-sm tracking-wide">
                     Referencia real de envío
                   </p>
                 </div>
 
-                {/* Badge Transporte */}
                 <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-white/95 backdrop-blur text-[9px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full text-slate-900 shadow-sm flex items-center gap-1 border border-slate-100">
                   <Truck size={10} className="md:w-3 md:h-3" /> {item.transporte}
                 </div>
               </div>
 
-              {/* Info: Padding ajustado */}
               <div className="p-3 md:p-5 text-center md:text-left">
                 <h3 className="text-sm md:text-lg font-bold text-slate-900 flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start gap-1 md:gap-2">
                   <MapPin size={14} className="text-red-500 md:w-[18px] md:h-[18px]" />

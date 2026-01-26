@@ -1,23 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Check } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom"; // <--- 1. NUEVOS IMPORTS
 
-function ProductoDetalle({ producto, onVolver, agregarAlCarrito }) {
-  const [imagenActiva, setImagenActiva] = useState(producto?.imagenes?.principal);
+// 2. IMPORTAR TUS DATOS PARA PODER BUSCAR
+import { INVENTARIO_MOTOS } from "../data/InventarioMotos";
+import { INVENTARIO_AUTOS } from "../data/InventarioAutos";
+import { INVENTARIO_HOTWHEELS } from "../data/InventarioHotwheels";
+import { INVENTARIO_ACCESORIOS } from "../data/InventarioAccesorios";
 
-  if (!producto) return null;
+function ProductoDetalle({ agregarAlCarrito }) {
+  // 3. OBTENER PARAMETROS DE LA URL
+  const { categoria, id } = useParams(); 
+  const navigate = useNavigate();
+  
+  const [producto, setProducto] = useState(null);
+  const [imagenActiva, setImagenActiva] = useState(null);
+
+  // 4. EFECTO: BUSCAR EL PRODUCTO AL CARGAR
+  useEffect(() => {
+    let inventario = [];
+    
+    // Mapear la categoría de la URL al archivo correcto
+    if (categoria === 'motos') inventario = INVENTARIO_MOTOS;
+    else if (categoria === 'autos') inventario = INVENTARIO_AUTOS;
+    else if (categoria === 'hotwheels') inventario = INVENTARIO_HOTWHEELS;
+    else if (categoria === 'accesorios') inventario = INVENTARIO_ACCESORIOS;
+    
+    // Buscar por ID
+    const encontrado = inventario.find(p => p.id === parseInt(id));
+    
+    if (encontrado) {
+      setProducto(encontrado);
+      setImagenActiva(encontrado.imagenes?.principal);
+    }
+  }, [categoria, id]);
+
+  // Si no encuentra producto (o está cargando)
+  if (!producto) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center">
+        <p className="text-slate-500 mb-4">Cargando producto o no encontrado...</p>
+        <button onClick={() => navigate('/')} className="text-blue-600 underline">Volver al inicio</button>
+      </div>
+    );
+  }
 
   const tieneStock = producto.stock > 0;
   const listaImagenes = producto.imagenes?.galeria 
     ? [producto.imagenes.principal, ...producto.imagenes.galeria] 
     : [producto.imagenes.principal];
 
-  // Helper para saber si es accesorio (si no tiene marca definida)
+  // Helper para saber si es accesorio
   const esAccesorio = !producto.marca && !producto.fabricante;
   const esHotWheels = producto.categoria === 'Hot Wheels';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 animate-fade-in font-sans">
-      <button onClick={onVolver} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold mb-8 transition-colors">
+      
+      {/* 5. BOTÓN VOLVER CON NAVEGACIÓN */}
+      <button 
+        onClick={() => navigate(-1)} 
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold mb-8 transition-colors"
+      >
         <ArrowLeft size={18} /> Volver
       </button>
 
@@ -26,7 +70,7 @@ function ProductoDetalle({ producto, onVolver, agregarAlCarrito }) {
         {/* GALERÍA */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="relative group w-full aspect-[4/3] bg-white rounded-2xl border border-slate-100 overflow-hidden flex items-center justify-center">
-            <img src={imagenActiva} alt={producto.nombre} className="w-[90%] h-[90%] object-contain transition-transform duration-500 group-hover:scale-125" />
+            <img src={imagenActiva} alt={producto.nombre} className={`w-[90%] h-[90%] object-contain transition-transform duration-500 group-hover:scale-125`} />
              {!tieneStock && (
                 <div className="absolute top-4 left-4 bg-red-100 text-red-600 px-3 py-1 rounded-lg font-bold text-sm border border-red-200">AGOTADO</div>
             )}
@@ -56,7 +100,8 @@ function ProductoDetalle({ producto, onVolver, agregarAlCarrito }) {
             {producto.serie && <p><strong>Serie:</strong> {producto.serie}</p>}
             {producto.marca && <p><strong>Marca:</strong> {producto.marca}</p>}
             {producto.escala && <p><strong>Escala:</strong> {producto.escala}</p>}
-            {/* En Accesorios, 'categoria' es el Tipo, lo mostramos */}
+            
+            {/* En Accesorios, 'categoria' es el Tipo */}
             {esAccesorio && <p><strong>Tipo:</strong> {producto.categoria}</p>}
 
             {producto.caracteristicas.map((c, idx) => (

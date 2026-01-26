@@ -1,38 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Menu, X, Flame, Truck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+// 1. NUEVOS IMPORTS
+import { Link, useLocation } from 'react-router-dom';
 
-export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vistaActual }) {
+export default function Navbar({ carritoCount, onOpenCart }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // 2. HOOK PARA SABER LA RUTA ACTUAL
+  const location = useLocation();
 
-  // Detectar scroll para ajustar el tamaño de la barra
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Link de Escritorio con estilo
-  const NavLink = ({ text, onClick, active, isHot = false, icon: Icon }) => (
-    <button 
-      onClick={onClick} 
+  // Función auxiliar para verificar ruta activa
+  const isActive = (path) => location.pathname === path;
+
+  // Componente Link de Escritorio (Ahora usa Link en vez de button)
+  const NavLink = ({ text, to, isHot = false, icon: Icon }) => (
+    <Link 
+      to={to} 
       className={`relative group flex items-center gap-2 py-2 transition-colors uppercase tracking-tight text-lg font-black
-        ${active ? 'text-red-600' : 'text-slate-900 hover:text-red-600'}
+        ${isActive(to) ? 'text-red-600' : 'text-slate-900 hover:text-red-600'}
         ${isHot ? 'text-orange-600 hover:text-orange-700' : ''}
       `}
     >
       {Icon && <Icon size={22} className={isHot ? "fill-current" : ""} />}
       {text}
       <span className={`absolute bottom-0 left-0 h-[3px] bg-current transition-all duration-300 
-        ${active ? 'w-full' : 'w-0 group-hover:w-full'}`}>
+        ${isActive(to) ? 'w-full' : 'w-0 group-hover:w-full'}`}>
       </span>
-    </button>
+    </Link>
   );
 
   return (
     <>
-      {/* ===================== 1. TOP BAR ===================== */}
+      {/* TOP BAR */}
       <div className="bg-slate-900 text-white text-xs md:text-sm font-black tracking-wider uppercase py-3 text-center relative z-50">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-center items-center gap-2 md:gap-8">
@@ -46,20 +53,18 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
         </div>
       </div>
 
-      {/* ===================== 2. MAIN NAVBAR ===================== */}
+      {/* MAIN NAVBAR */}
       <nav 
         className={`sticky top-0 z-40 bg-white transition-all duration-300 border-b border-slate-200
           ${isScrolled ? 'shadow-md py-3' : 'py-4 md:py-6'} 
         `}
       >
-        {/* Contenedor principal con posición relativa para el centrado absoluto del logo en móvil */}
         <div className="w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative">
           <div className="flex items-center justify-between">
             
-            {/* --- ZONA IZQUIERDA --- */}
+            {/* ZONA IZQUIERDA */}
             <div className="flex items-center gap-4">
-                
-                {/* 1. Botón Menú Móvil (AHORA A LA IZQUIERDA) */}
+                {/* Botón Menú Móvil */}
                 <button 
                     className="lg:hidden text-slate-900 hover:text-red-600 transition-colors p-1" 
                     onClick={() => setIsMobileMenuOpen(true)}
@@ -67,23 +72,19 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
                     <Menu size={28} strokeWidth={2} />
                 </button>
 
-                {/* 2. LOGO (Solo visible en PC aquí) */}
-                <div 
-                    onClick={() => setVistaActual('inicio')} 
-                    className="cursor-pointer flex-shrink-0 hidden lg:block"
-                >
+                {/* LOGO (PC) - Ahora con Link */}
+                <Link to="/" className="cursor-pointer flex-shrink-0 hidden lg:block">
                     <img 
                         src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769311945/logoactualizado_rkbkby.png" 
                         alt="FG Store Logo" 
                         className={`object-contain transition-all duration-300 ${isScrolled ? 'h-14' : 'h-16 md:h-18'}`}
                     />
-                </div>
+                </Link>
             </div>
 
-            {/* --- ZONA CENTRAL (Solo Móvil - Logo Centrado) --- */}
-            {/* Usamos posición absoluta para asegurar centro perfecto sin importar ancho de botones laterales */}
-            <div 
-                onClick={() => setVistaActual('inicio')} 
+            {/* ZONA CENTRAL (Logo Móvil) - Ahora con Link */}
+            <Link 
+                to="/" 
                 className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
             >
                 <img 
@@ -91,21 +92,21 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
                     alt="FG Store Logo" 
                     className="h-10 sm:h-12 object-contain"
                 />
-            </div>
+            </Link>
 
-            {/* --- ZONA CENTRAL (Solo PC - Links) --- */}
+            {/* ZONA CENTRAL (Links PC) */}
             <div className="hidden lg:flex items-center justify-center flex-1 mx-4 xl:mx-8">
               <div className="flex items-center justify-center gap-5 xl:gap-8">
-                <NavLink text="Inicio" onClick={() => setVistaActual('inicio')} active={vistaActual === 'inicio'} />
-                <NavLink text="Motos a Escala" onClick={() => setVistaActual('motos')} active={vistaActual === 'motos'} />
-                <NavLink text="Autos a Escala" onClick={() => setVistaActual('autos')} active={vistaActual === 'autos'} />
-                <NavLink text="HOTWHEELS" onClick={() => setVistaActual('hotwheels')} active={vistaActual === 'hotwheels'} isHot={true} icon={Flame} />
-                <NavLink text="ACCESORIOS" onClick={() => setVistaActual('accesorios')} active={vistaActual === 'accesorios'} />
-                <NavLink text="ENVÍOS" onClick={() => setVistaActual('pruebas')} active={vistaActual === 'pruebas'} />
+                <NavLink to="/" text="Inicio" />
+                <NavLink to="/motos" text="Motos a Escala" />
+                <NavLink to="/autos" text="Autos a Escala" />
+                <NavLink to="/hotwheels" text="HOTWHEELS" isHot={true} icon={Flame} />
+                <NavLink to="/accesorios" text="ACCESORIOS" />
+                <NavLink to="/envios" text="ENVÍOS" />
               </div>
             </div>
 
-            {/* --- ZONA DERECHA (Carrito) --- */}
+            {/* ZONA DERECHA (Carrito) */}
             <div className="flex items-center gap-4">
               <button 
                 onClick={onOpenCart}
@@ -122,8 +123,6 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
                     </motion.span>
                   )}
                 </div>
-                
-                {/* Texto Carrito (Solo PC) */}
                 <div className="hidden lg:flex flex-col items-start">
                   <span className="text-lg font-black text-slate-900 group-hover:text-red-600 transition-colors uppercase tracking-tight leading-tight">
                     CARRITO
@@ -139,7 +138,7 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
         </div>
       </nav>
 
-      {/* ===================== 3. MENÚ MÓVIL ===================== */}
+      {/* MENÚ MÓVIL */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -172,12 +171,12 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
               </div>
               
               <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-2">
-                <MobileLink onClick={() => {setVistaActual('inicio'); setIsMobileMenuOpen(false)}} text="Inicio" active={vistaActual === 'inicio'} />
-                <MobileLink onClick={() => {setVistaActual('motos'); setIsMobileMenuOpen(false)}} text="Motos a Escala" active={vistaActual === 'motos'} />
-                <MobileLink onClick={() => {setVistaActual('autos'); setIsMobileMenuOpen(false)}} text="Autos a Escala" active={vistaActual === 'autos'} />
-                <MobileLink onClick={() => {setVistaActual('hotwheels'); setIsMobileMenuOpen(false)}} text="HOTWHEELS" active={vistaActual === 'hotwheels'} isHot={true} icon={Flame} />
-                <MobileLink onClick={() => {setVistaActual('accesorios'); setIsMobileMenuOpen(false)}} text="ACCESORIOS" active={vistaActual === 'accesorios'} />
-                <MobileLink onClick={() => {setVistaActual('pruebas'); setIsMobileMenuOpen(false)}} text="ENVÍOS" active={vistaActual === 'pruebas'} icon={Truck} />
+                <MobileLink to="/" text="Inicio" onClick={() => setIsMobileMenuOpen(false)} isActive={isActive('/')} />
+                <MobileLink to="/motos" text="Motos a Escala" onClick={() => setIsMobileMenuOpen(false)} isActive={isActive('/motos')} />
+                <MobileLink to="/autos" text="Autos a Escala" onClick={() => setIsMobileMenuOpen(false)} isActive={isActive('/autos')} />
+                <MobileLink to="/hotwheels" text="HOTWHEELS" onClick={() => setIsMobileMenuOpen(false)} isActive={isActive('/hotwheels')} isHot={true} icon={Flame} />
+                <MobileLink to="/accesorios" text="ACCESORIOS" onClick={() => setIsMobileMenuOpen(false)} isActive={isActive('/accesorios')} />
+                <MobileLink to="/envios" text="ENVÍOS" onClick={() => setIsMobileMenuOpen(false)} isActive={isActive('/envios')} icon={Truck} />
               </div>
 
               <div className="p-6 bg-slate-900 text-white">
@@ -215,12 +214,13 @@ export default function Navbar({ carritoCount, onOpenCart, setVistaActual, vista
   );
 }
 
-// Componente auxiliar móvil
-const MobileLink = ({ text, onClick, active = false, isHot = false, icon: Icon }) => (
-  <button 
+// Componente auxiliar móvil actualizado con Link
+const MobileLink = ({ text, to, onClick, isActive, isHot = false, icon: Icon }) => (
+  <Link 
+    to={to} 
     onClick={onClick} 
     className={`flex items-center justify-between w-full p-4 rounded-xl text-lg font-black transition-all
-      ${active ? 'bg-red-50 text-red-600 border border-red-100' : 'text-slate-900 hover:bg-slate-50 hover:text-slate-900 border border-transparent'}
+      ${isActive ? 'bg-red-50 text-red-600 border border-red-100' : 'text-slate-900 hover:bg-slate-50 hover:text-slate-900 border border-transparent'}
       ${isHot ? 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-100' : ''}
     `}
   >
@@ -228,8 +228,8 @@ const MobileLink = ({ text, onClick, active = false, isHot = false, icon: Icon }
       {Icon && <Icon size={22} className={isHot ? "fill-orange-600" : "text-slate-400"} />}
       {text}
     </span>
-    {active && (
+    {isActive && (
       <div className="w-2 h-2 bg-current rounded-full"></div>
     )}
-  </button>
+  </Link>
 );

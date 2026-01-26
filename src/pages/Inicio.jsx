@@ -3,9 +3,13 @@ import {
   ArrowRight, ShoppingBag, Truck, CheckCircle, 
   Package, CreditCard, ExternalLink
 } from "lucide-react";
+// 1. IMPORTAR HOOK DE NAVEGACIÓN
+import { useNavigate } from "react-router-dom";
 import {TikTokIcon, InstagramIcon, FacebookIcon} from "../components/SocialMediaIcons";
 
-const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto }) => {
+const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
+  // 2. INICIALIZAR HOOK
+  const navigate = useNavigate();
   
   const imagenFondo = "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769076545/imgi_32_bike_gajser_team-shoot_hondaracing_shotbybavo_2_d74wbu.jpg";
 
@@ -43,111 +47,62 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
         </div>
       </div>
 
-{/* ===================== REDES SOCIALES (Profesional & Optimizado) ===================== */}
-<div className="relative bg-gradient-to-b from-white to-slate-50 border-y border-slate-200">
-  <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 sm:py-12 md:py-16">
-    
-    {/* Título descriptivo (opcional pero profesional) */}
-    <div className="text-center mb-6 sm:mb-8">
-      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-1">
-        Síguenos en nuestras redes oficiales
-      </h2>
-      <p className="text-xs sm:text-sm text-slate-600">
-        No te pierdas nuestras últimas novedades y ofertas exclusivas
-      </p>
-    </div>
-    
-    {/* Grid responsivo - más elegante que flex */}
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto">
-      
-      {/* TikTok */}
-      <a 
-        href="https://www.tiktok.com/@fgstoreec" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="group relative overflow-hidden flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-black text-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-98 transition-all duration-300"
-      >
-        {/* Efecto hover sutil */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-        
-        <div className="relative bg-white/15 backdrop-blur-sm p-2 rounded-lg flex-shrink-0 group-hover:bg-white/25 transition-colors">
-          <TikTokIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-        </div>
-        
-        <div className="relative text-left flex-1 min-w-0">
-          <p className="text-[10px] sm:text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">
-            Síguenos
-          </p>
-          <p className="font-bold text-sm sm:text-base truncate">
-            +11k en TikTok
-          </p>
-        </div>
-        
-        {/* Indicador visual de link externo */}
-        <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
+      {/* ===================== REDES SOCIALES (Profesional & Optimizado) ===================== */}
+      <div className="relative bg-gradient-to-b from-white to-slate-50 border-y border-slate-200">
+        <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 sm:py-12 md:py-16">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-1">
+              Síguenos en nuestras redes oficiales
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600">
+              No te pierdas nuestras últimas novedades y ofertas exclusivas
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto">
+            {/* TikTok */}
+            <a href="https://www.tiktok.com/@fgstoreec" target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-black text-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-98 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <div className="relative bg-white/15 backdrop-blur-sm p-2 rounded-lg flex-shrink-0 group-hover:bg-white/25 transition-colors">
+                <TikTokIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <div className="relative text-left flex-1 min-w-0">
+                <p className="text-[10px] sm:text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Síguenos</p>
+                <p className="font-bold text-sm sm:text-base truncate">+11k en TikTok</p>
+              </div>
+              <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
 
-      {/* Instagram */}
-      <a 
-        href="https://www.instagram.com/fgstoreec" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="group relative overflow-hidden flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-98 transition-all duration-300"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-        
-        <div className="relative bg-white/15 backdrop-blur-sm p-2 rounded-lg flex-shrink-0 group-hover:bg-white/25 transition-colors">
-          <InstagramIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-        </div>
-        
-        <div className="relative text-left flex-1 min-w-0">
-          <p className="text-[10px] sm:text-xs text-white/80 font-semibold uppercase tracking-wider mb-0.5">
-            Novedades
-          </p>
-          <p className="font-bold text-sm sm:text-base truncate">
-            +1k seguidores
-          </p>
-        </div>
-        
-        <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
+            {/* Instagram */}
+            <a href="https://www.instagram.com/fgstoreec" target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-98 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <div className="relative bg-white/15 backdrop-blur-sm p-2 rounded-lg flex-shrink-0 group-hover:bg-white/25 transition-colors">
+                <InstagramIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <div className="relative text-left flex-1 min-w-0">
+                <p className="text-[10px] sm:text-xs text-white/80 font-semibold uppercase tracking-wider mb-0.5">Novedades</p>
+                <p className="font-bold text-sm sm:text-base truncate">+1k seguidores</p>
+              </div>
+              <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
 
-      {/* Facebook */}
-      <a 
-        href="https://www.facebook.com/profile.php?id=100076773455049&locale=es_LA" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="group relative overflow-hidden flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-[#1877F2] text-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-98 transition-all duration-300"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-        
-        <div className="relative bg-white/15 backdrop-blur-sm p-2 rounded-lg flex-shrink-0 group-hover:bg-white/25 transition-colors">
-          <FacebookIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            {/* Facebook */}
+            <a href="https://www.facebook.com/profile.php?id=100076773455049&locale=es_LA" target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-[#1877F2] text-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-98 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <div className="relative bg-white/15 backdrop-blur-sm p-2 rounded-lg flex-shrink-0 group-hover:bg-white/25 transition-colors">
+                <FacebookIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <div className="relative text-left flex-1 min-w-0">
+                <p className="text-[10px] sm:text-xs text-blue-100 font-semibold uppercase tracking-wider mb-0.5">Comunidad</p>
+                <p className="font-bold text-sm sm:text-base truncate">Facebook</p>
+              </div>
+              <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
+          </div>
         </div>
-        
-        <div className="relative text-left flex-1 min-w-0">
-          <p className="text-[10px] sm:text-xs text-blue-100 font-semibold uppercase tracking-wider mb-0.5">
-            Comunidad
-          </p>
-          <p className="font-bold text-sm sm:text-base truncate">
-            Facebook
-          </p>
-        </div>
-        
-        <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
+      </div>
 
-    </div>
-  </div>
-</div>
-
-      {/* ===================== PRODUCTOS DESTACADOS (Optimizado Móvil) ===================== */}
+      {/* ===================== PRODUCTOS DESTACADOS ===================== */}
       <section className="py-12 md:py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="mb-8 md:mb-12 text-center">
@@ -156,7 +111,6 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
             </h2>
           </div>
 
-          {/* GRID: 2 columnas en móvil (gap-3), 4 columnas en PC (gap-6) */}
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {productos && productos.map((prod) => {
               const tieneStock = prod.stock > 0;
@@ -164,18 +118,26 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
               return (
                 <div 
                   key={`${prod.categoria}-${prod.id}`} 
-                  onClick={() => onSelectProducto && onSelectProducto(prod)}
+                  // 3. CAMBIO: Usar navigate para ir a la ruta del producto
+                  onClick={() => {
+                    // onSelectProducto(prod); <-- Opcional si quieres mantener estado, pero con rutas es mejor navigate
+                    let rutaCategoria = 'otros';
+                    if (prod.categoria === 'Moto') rutaCategoria = 'motos';
+                    else if (prod.categoria === 'Auto') rutaCategoria = 'autos';
+                    else if (prod.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
+                    else rutaCategoria = 'accesorios';
+                    
+                    navigate(`/producto/${rutaCategoria}/${prod.id}`);
+                  }}
                   className="bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden group flex flex-col cursor-pointer"
                 >
                   
-                  {/* IMAGEN: Altura h-36 en móvil, h-56 en PC */}
                   <div className="relative h-36 sm:h-48 md:h-56 aspect-[4/3] bg-slate-100 overflow-hidden flex items-center justify-center p-4">
                     <img 
                       src={prod.imagenes?.principal}
                       alt={prod.nombre} 
                       className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
                     />
-                    
                     {!tieneStock && (
                       <div className="absolute bottom-0 left-0 right-0 bg-red-600/90 text-white text-center text-[10px] md:text-xs font-bold py-1">
                         AGOTADO
@@ -183,26 +145,19 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
                     )}
                   </div>
 
-                  {/* INFO: Padding p-3 en móvil, p-6 en PC */}
                   <div className="p-3 md:p-6 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-2 md:mb-3">
                       <span className="text-red-600 text-[9px] md:text-[10px] font-bold uppercase tracking-wider truncate">
                         {prod.marca || prod.categoria}
                       </span>
                     </div>
-                    
-                    {/* TÍTULO: Texto más pequeño en móvil */}
                     <h3 className="font-bold text-slate-900 text-sm md:text-lg leading-tight mb-2 md:mb-4 flex-1 line-clamp-2">
                       {prod.nombre}
                     </h3>
-
                     <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-slate-100">
-                      {/* PRECIO: Texto adaptable */}
                       <span className="text-lg md:text-xl font-black text-slate-900">
                         ${prod.precio.toFixed(2)}
                       </span>
-                      
-                      {/* BOTÓN: Padding reducido en móvil */}
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
@@ -264,7 +219,6 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
               <p className="text-slate-500 mb-6 md:mb-8 text-sm leading-relaxed">
                 Aceptamos transferencias directas a las siguientes instituciones bancarias:
               </p>
-              
               <div className="grid grid-cols-3 gap-4 md:gap-8 items-center justify-items-center">
                 <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769069515/png-transparent-banco-pichincha-hd-logo_ecxzuf.png" alt="Banco Pichincha" className="h-8 md:h-12 object-contain logo-pulse" style={{ animationDelay: '0s' }} />
                 <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769068298/logo_bg_magenta_f46kbl.png" alt="Banco Guayaquil" className="h-6 md:h-10 object-contain logo-pulse" style={{ animationDelay: '1s' }} />
@@ -282,7 +236,6 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
                   </div>
                   <h3 className="text-lg md:text-xl font-bold text-slate-900">Envíos Certificados</h3>
                 </div>
-
                 <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8">
                   <div className="w-24 md:w-32 flex-shrink-0">
                     <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769069573/servientrega-logo-png_seeklogo-424932_ynxjo8.png" alt="Logo Servientrega" className="w-full object-contain" />
@@ -322,7 +275,11 @@ const Inicio = ({ setVistaActual, productos, agregarAlCarrito, onSelectProducto 
             ))}
           </div>
 
-          <button onClick={() => setVistaActual('pruebas')} className="inline-flex items-center gap-3 bg-slate-900 text-white px-8 md:px-12 py-3 md:py-4 rounded-xl font-bold hover:bg-slate-800 transition shadow-lg hover:shadow-xl cursor-pointer text-sm md:text-base">
+          <button 
+            // 4. CAMBIO: Usar navigate en vez de setVistaActual
+            onClick={() => navigate('/envios')} 
+            className="inline-flex items-center gap-3 bg-slate-900 text-white px-8 md:px-12 py-3 md:py-4 rounded-xl font-bold hover:bg-slate-800 transition shadow-lg hover:shadow-xl cursor-pointer text-sm md:text-base"
+          >
             Ver mas referencias <ArrowRight size={18} />
           </button>
         </div>

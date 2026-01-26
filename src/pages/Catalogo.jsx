@@ -1,15 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ShoppingCart, CheckCircle, Filter, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // <--- IMPORTAR
 
 const Catalogo = ({
   productosIniciales = [],
   titulo,
   subtitulo,
   agregarAlCarrito,
-  onSelectProducto,
-  esAccesorios = false // FIX: Recibimos esto explícitamente para evitar errores
+  esAccesorios = false
 }) => {
-  // --- DETECCIÓN DE TIPO DE INVENTARIO ---
+  const navigate = useNavigate(); // <--- HOOK
   const esHotWheels = useMemo(() => productosIniciales.some(p => p.categoria === 'Hot Wheels'), [productosIniciales]);
   
   // --- ESTADOS DE FILTROS ---
@@ -39,15 +39,10 @@ const Catalogo = ({
   }, [productosIniciales]);
 
   // --- 1. EXTRAER OPCIONES ÚNICAS ---
-  
-  // FIX: Cambiado 'marcaVehiculo' por 'marca'
   const marcasDisponibles = useMemo(() => esAccesorios ? [] : [...new Set(productosIniciales.map(p => p.marca || "Otras"))].sort(), [productosIniciales, esAccesorios]);
-  
   const fabricantesDisponibles = useMemo(() => (esHotWheels || esAccesorios) ? [] : [...new Set(productosIniciales.map(p => p.fabricante))].sort(), [productosIniciales, esHotWheels, esAccesorios]);
   const seriesDisponibles = useMemo(() => esHotWheels ? ["Basicos", "Silver Series", "Premium"] : [], [esHotWheels]);
   const escalasDisponibles = useMemo(() => esAccesorios ? [] : [...new Set(productosIniciales.map(p => p.escala))].sort(), [productosIniciales, esAccesorios]);
-
-  // Para Accesorios: Usamos el campo 'categoria' como "Tipo"
   const tiposAccesoriosDisponibles = useMemo(() => esAccesorios ? [...new Set(productosIniciales.map(p => p.categoria))].sort() : [], [productosIniciales, esAccesorios]);
 
   // --- 2. HELPERS ---
@@ -62,15 +57,12 @@ const Catalogo = ({
 
   // --- 3. LÓGICA DE FILTRADO ---
   const productosProcesados = productosIniciales.filter(p => {
-    // 0. Texto
     const coincideTexto = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
     
-    // 1. Disponibilidad (Universal)
     let coincideStock = true;
     if (filtroDisponibilidad.disponibles && !filtroDisponibilidad.agotados) coincideStock = p.stock > 0;
     else if (!filtroDisponibilidad.disponibles && filtroDisponibilidad.agotados) coincideStock = p.stock === 0;
 
-    // --- FILTROS ESPECÍFICOS ---
     if (esAccesorios) {
         const coincideTipo = tiposAccesoriosSeleccionados.length === 0 || tiposAccesoriosSeleccionados.includes(p.categoria);
         return coincideTexto && coincideStock && coincideTipo;
@@ -248,10 +240,22 @@ const Catalogo = ({
                         else etiquetaSecundaria = producto.fabricante;
 
                         return (
-                            <div key={uniqueKey} onClick={() => onSelectProducto?.(producto)} className="group bg-white rounded-xl border border-slate-100 hover:shadow-xl flex flex-col overflow-hidden cursor-pointer relative">
+                            <div 
+                                key={uniqueKey} 
+                                // CAMBIO: Usamos navigate para ir a la URL del producto
+                                onClick={() => {
+                                    let rutaCategoria = 'otros';
+                                    if (producto.categoria === 'Moto') rutaCategoria = 'motos';
+                                    else if (producto.categoria === 'Auto') rutaCategoria = 'autos';
+                                    else if (producto.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
+                                    else rutaCategoria = 'accesorios'; 
+                                    navigate(`/producto/${rutaCategoria}/${producto.id}`);
+                                }} 
+                                className="group bg-white rounded-xl border border-slate-100 hover:shadow-xl flex flex-col overflow-hidden cursor-pointer relative"
+                            >
                                 
                                 {/* 1. IMAGEN: Altura ajustable h-36 (móvil) / h-60 (PC) */}
-                                <div className="relative h-36 sm:h-48 md:h-60 bg-slate-50 flex items-center justify-center p-4 overflow-hidden">                                    
+                                <div className="relative h-36 sm:h-48 md:h-60 bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
                                     <img 
                                         src={producto.imagenes?.principal} 
                                         alt={producto.nombre} 
