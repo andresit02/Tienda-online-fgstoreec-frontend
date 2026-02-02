@@ -1,63 +1,49 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Check } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom"; // <--- 1. NUEVOS IMPORTS
+import { useParams, useNavigate } from "react-router-dom";
 
-// 2. IMPORTAR TUS DATOS PARA PODER BUSCAR
-import { INVENTARIO_MOTOS } from "../data/InventarioMotos";
-import { INVENTARIO_AUTOS } from "../data/InventarioAutos";
-import { INVENTARIO_HOTWHEELS } from "../data/InventarioHotwheels";
-import { INVENTARIO_ACCESORIOS } from "../data/InventarioAccesorios";
+// 1. YA NO IMPORTAMOS LOS INVENTARIOS ESTATICOS AQUI
 
-function ProductoDetalle({ agregarAlCarrito }) {
-  // 3. OBTENER PARAMETROS DE LA URL
-  const { categoria, id } = useParams(); 
+function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) { // <--- Recibimos la lista completa
+  const { id } = useParams(); 
   const navigate = useNavigate();
   
   const [producto, setProducto] = useState(null);
   const [imagenActiva, setImagenActiva] = useState(null);
 
-  // 4. EFECTO: BUSCAR EL PRODUCTO AL CARGAR
   useEffect(() => {
-    let inventario = [];
-    
-    // Mapear la categoría de la URL al archivo correcto
-    if (categoria === 'motos') inventario = INVENTARIO_MOTOS;
-    else if (categoria === 'autos') inventario = INVENTARIO_AUTOS;
-    else if (categoria === 'hotwheels') inventario = INVENTARIO_HOTWHEELS;
-    else if (categoria === 'accesorios') inventario = INVENTARIO_ACCESORIOS;
-    
-    // Buscar por ID
-    const encontrado = inventario.find(p => p.id === parseInt(id));
-    
-    if (encontrado) {
-      setProducto(encontrado);
-      setImagenActiva(encontrado.imagenes?.principal);
+    // 2. BUSCAMOS EL PRODUCTO DIRECTAMENTE EN LA LISTA QUE VINO DE LA API
+    if (todosLosProductos && todosLosProductos.length > 0) {
+      const encontrado = todosLosProductos.find(p => p.id === parseInt(id));
+      
+      if (encontrado) {
+        setProducto(encontrado);
+        setImagenActiva(encontrado.imagenes?.principal);
+      }
     }
-  }, [categoria, id]);
+  }, [id, todosLosProductos]);
 
-  // Si no encuentra producto (o está cargando)
   if (!producto) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center">
-        <p className="text-slate-500 mb-4">Cargando producto o no encontrado...</p>
+        <p className="text-slate-500 mb-4">Cargando detalles...</p>
         <button onClick={() => navigate('/')} className="text-blue-600 underline">Volver al inicio</button>
       </div>
     );
   }
 
   const tieneStock = producto.stock > 0;
+  // Manejo seguro de galería por si viene vacía de la BD
   const listaImagenes = producto.imagenes?.galeria 
     ? [producto.imagenes.principal, ...producto.imagenes.galeria] 
-    : [producto.imagenes.principal];
+    : [producto.imagenes?.principal];
 
-  // Helper para saber si es accesorio
-  const esAccesorio = !producto.marca && !producto.fabricante;
+  const esAccesorio = producto.categoria === 'Accesorios';
   const esHotWheels = producto.categoria === 'Hot Wheels';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 animate-fade-in font-sans">
       
-      {/* 5. BOTÓN VOLVER CON NAVEGACIÓN */}
       <button 
         onClick={() => navigate(-1)} 
         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold mb-8 transition-colors"
@@ -75,7 +61,7 @@ function ProductoDetalle({ agregarAlCarrito }) {
                 <div className="absolute top-4 left-4 bg-red-100 text-red-600 px-3 py-1 rounded-lg font-bold text-sm border border-red-200">AGOTADO</div>
             )}
           </div>
-          {listaImagenes.length > 0 && (
+          {listaImagenes.length > 1 && (
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x">
               {listaImagenes.map((img, index) => (
                   <button key={index} onClick={() => setImagenActiva(img)} className={`relative flex-shrink-0 w-20 h-20 rounded-xl border-2 p-1 transition-all snap-start overflow-hidden ${imagenActiva === img ? "border-red-600 shadow-md ring-2 ring-red-100" : "border-slate-100 opacity-70 hover:opacity-100"}`}>
@@ -95,26 +81,23 @@ function ProductoDetalle({ agregarAlCarrito }) {
           <h2 className="text-xl font-extrabold text-slate-900 mt-10 mb-4">Características</h2>
           <div className="space-y-3 text-slate-700 text-sm md:text-base">
             
-            {/* Solo mostramos si existen las propiedades */}
             {producto.fabricante && <p><strong>Fabricante:</strong> {producto.fabricante}</p>}
             {producto.serie && <p><strong>Serie:</strong> {producto.serie}</p>}
             {producto.marca && <p><strong>Marca:</strong> {producto.marca}</p>}
             {producto.escala && <p><strong>Escala:</strong> {producto.escala}</p>}
             
-            {/* En Accesorios, 'categoria' es el Tipo */}
             {esAccesorio && <p><strong>Tipo:</strong> {producto.categoria}</p>}
 
-            {producto.caracteristicas.map((c, idx) => (
+            {producto.caracteristicas && producto.caracteristicas.map((c, idx) => (
               <p key={idx} className="flex items-center gap-2">
                 <Check className="text-green-600 flex-shrink-0" size={18} /> {c}
               </p>
             ))}
 
-            {/* Ocultar Materiales y Medidas para Hot Wheels Y Accesorios (si no lo tienen) */}
             {!esHotWheels && !esAccesorio && (
               <>
-                <p className="mt-4"><strong>Materiales:</strong> {producto.materiales}</p>
-                <p><strong>Medidas de la caja (cm):</strong> {producto.medidasCaja?.texto || "No especificado"}</p>
+                {producto.materiales && <p className="mt-4"><strong>Materiales:</strong> {producto.materiales}</p>}
+                {producto.medidasCaja && <p><strong>Medidas de la caja (cm):</strong> {producto.medidasCaja?.texto || "No especificado"}</p>}
               </>
             )}
           </div>
