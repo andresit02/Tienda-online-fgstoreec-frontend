@@ -1,6 +1,6 @@
 import AdminDashboard from './pages/AdminDashboard';
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom'; 
+import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom'; 
 import { Toaster } from 'react-hot-toast'; // 1. Importación de la librería
 
 import Navbar from './components/BarraNavegacion'; 
@@ -16,9 +16,15 @@ import { useProductos } from './hooks/useProductos';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+  const action = useNavigationType(); // Detecta si es PUSH, POP o REPLACE
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    // Si la acción NO es "volver atrás" (POP), entonces sube el scroll.
+    if (action !== 'POP') {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, action]);
+  
   return null;
 };
 

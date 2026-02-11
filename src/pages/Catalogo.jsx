@@ -245,13 +245,17 @@ const Catalogo = ({
                                 key={uniqueKey} 
                                 // CAMBIO: Usamos navigate para ir a la URL del producto
                                 onClick={() => {
-                                    let rutaCategoria = 'otros';
-                                    if (producto.categoria === 'Motos') rutaCategoria = 'motos';
-                                    else if (producto.categoria === 'Autos') rutaCategoria = 'autos';
-                                    else if (producto.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
-                                    else rutaCategoria = 'accesorios'; 
-                                    navigate(`/producto/${rutaCategoria}/${crearSlug(producto.nombre)}`);
-                                }} 
+                                let rutaCategoria = 'otros';
+                                if (producto.categoria === 'Motos') rutaCategoria = 'motos';
+                                else if (producto.categoria === 'Autos') rutaCategoria = 'autos';
+                                else if (producto.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
+                                else rutaCategoria = 'accesorios'; 
+                                
+                                // CAMBIO: Agregamos "-${producto.id}" al final
+                                const slugUnico = `${crearSlug(producto.nombre)}-${producto.id}`;
+                                
+                                navigate(`/producto/${rutaCategoria}/${slugUnico}`, { state: { fromInternal: true } });
+                            }} 
                                 className="group bg-white rounded-xl border border-slate-100 hover:shadow-xl flex flex-col overflow-hidden cursor-pointer relative"
                             >
                                 

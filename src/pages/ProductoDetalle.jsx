@@ -1,35 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Check } from "lucide-react";
-// 1. IMPORTAMOS useParams y useNavigate
-import { useParams, useNavigate } from "react-router-dom";
-// 2. IMPORTAMOS LA AYUDA PARA COMPARAR NOMBRES
+// 1. IMPORTAR useLocation TAMBIÉN
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { crearSlug } from "../helpers/slug";
 
 function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
-  // Ahora recibimos 'slug' en lugar de 'id'
   const { categoria, slug } = useParams(); 
   const navigate = useNavigate();
+  const location = useLocation(); // <--- Para leer el estado
   
   const [producto, setProducto] = useState(null);
   const [imagenActiva, setImagenActiva] = useState(null);
 
   useEffect(() => {
-    // BUSCAMOS EL PRODUCTO POR SU NOMBRE (SLUG)
     if (todosLosProductos && todosLosProductos.length > 0) {
-      const encontrado = todosLosProductos.find(p => crearSlug(p.nombre) === slug);
       
+      // NUEVA LÓGICA DE BÚSQUEDA ROBUSTA
+      const encontrado = todosLosProductos.find(p => {
+        // Construimos el slug único para este producto de la lista: "nombre-id"
+        const slugDelProducto = `${crearSlug(p.nombre)}-${p.id}`;
+        
+        // Lo comparamos con el slug que viene en la URL
+        return slugDelProducto === slug;
+      });
+
       if (encontrado) {
         setProducto(encontrado);
         setImagenActiva(encontrado.imagenes?.principal);
       }
     }
-  }, [slug, todosLosProductos]); // Se ejecuta si cambia el slug o la lista
+  }, [slug, todosLosProductos]);
 
-  // --- SOLUCIÓN PROBLEMA 1: NAVEGACIÓN SEGURA ---
+  // --- LÓGICA MAESTRA DEL BOTÓN VOLVER ---
   const handleVolver = () => {
-    // En lugar de navigate(-1), le decimos explícitamente a dónde ir
-    // Si la categoría es 'hotwheels', vamos a /hotwheels, etc.
-    navigate(`/${categoria}`);
+    // Si existe "fromInternal", significa que el usuario estaba navegando en nuestra web.
+    // Usamos -1 para volver al historial exacto (misma posición de scroll).
+    if (location.state?.fromInternal) {
+      navigate(-1);
+    } else {
+      // Si NO existe (entró directo por link), lo mandamos a la portada de la categoría.
+      navigate(`/${categoria}`);
+    }
   };
 
   if (!producto) {
@@ -52,12 +63,11 @@ function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 animate-fade-in font-sans">
       
-      {/* BOTÓN VOLVER INTELIGENTE */}
       <button 
         onClick={handleVolver} 
         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold mb-8 transition-colors"
       >
-        <ArrowLeft size={18} /> Volver a {categoria}
+        <ArrowLeft size={18} /> Volver
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 bg-white rounded-3xl border border-slate-100 shadow-xl p-6 lg:p-8">

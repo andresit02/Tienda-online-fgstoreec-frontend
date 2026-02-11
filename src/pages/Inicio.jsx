@@ -121,15 +121,17 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
                   key={`${prod.categoria}-${prod.id}`} 
                   // 3. CAMBIO: Usar navigate para ir a la ruta del producto
                   onClick={() => {
-                    // onSelectProducto(prod); <-- Opcional si quieres mantener estado, pero con rutas es mejor navigate
-                    let rutaCategoria = 'otros';
-                    if (prod.categoria === 'Motos') rutaCategoria = 'motos';
-                    else if (prod.categoria === 'Autos') rutaCategoria = 'autos';
-                    else if (prod.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
-                    else rutaCategoria = 'accesorios';
-                    
-                    navigate(`/producto/${rutaCategoria}/${crearSlug(prod.nombre)}`);
-                  }}
+                  let rutaCategoria = 'otros';
+                  if (prod.categoria === 'Motos') rutaCategoria = 'motos';
+                  else if (prod.categoria === 'Autos') rutaCategoria = 'autos';
+                  else if (prod.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
+                  else rutaCategoria = 'accesorios';
+                  
+                  // CAMBIO: Agregamos "-${prod.id}" al final
+                  const slugUnico = `${crearSlug(prod.nombre)}-${prod.id}`;
+                  
+                  navigate(`/producto/${rutaCategoria}/${slugUnico}`, { state: { fromInternal: true } });
+              }}
                   className="bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden group flex flex-col cursor-pointer"
                 >
                   

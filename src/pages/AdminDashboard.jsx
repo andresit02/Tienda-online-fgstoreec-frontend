@@ -19,7 +19,6 @@ const AdminDashboard = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productoEditando, setProductoEditando] = useState(null);
   
-  // Estado inicial limpio
   const initialFormState = {
     nombre: '',
     precio: 0,
@@ -59,6 +58,7 @@ const AdminDashboard = () => {
   };
 
   const cargarProductos = async () => {
+    // Nota: Quitamos setCargando(true) aquí para que no parpadee la pantalla al recargar la lista después de editar
     try {
       const res = await axios.get(API_URL);
       setProductos(res.data);
@@ -77,14 +77,12 @@ const AdminDashboard = () => {
     } catch (error) { toast.error('No se pudo eliminar'); }
   };
 
-  // --- ABRIR NUEVO (Limpia todo) ---
   const abrirNuevo = () => {
     setProductoEditando(null);
     setFormData(initialFormState); 
     setMostrarFormulario(true);
   };
 
-  // --- ABRIR EDITAR (Carga datos) ---
   const abrirEditar = (producto) => {
     setProductoEditando(producto);
     setFormData({
@@ -100,23 +98,26 @@ const AdminDashboard = () => {
     setMostrarFormulario(true);
   };
 
-  // --- LÓGICA DE GUARDADO ---
+  // --- LOGICA PRINCIPAL DE GUARDADO ---
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. VALIDACIÓN DE LÍMITE DE DESTACADOS (MÁXIMO 8)
+    // 1. VALIDACIÓN DE LÍMITE DE DESTACADOS (MÁXIMO 6)
     if (formData.destacado) {
+      // Contamos cuántos hay ya marcados como destacados en la base de datos
       const destacadosActuales = productos.filter(p => p.destacado).length;
+      
+      // Verificamos si este producto YA era destacado antes (para no contarlo doble al editar)
       const yaEraDestacado = productoEditando && productoEditando.destacado;
 
-      // Si intentas destacar uno nuevo o uno que no lo era, revisamos el límite
-      if (!yaEraDestacado) {
-        if (destacadosActuales >= 8) { // <--- CORREGIDO A 8
+      // Si es un producto NUEVO destacado, O si es uno existente que NO era destacado
+      if (!productoEditando || (productoEditando && !yaEraDestacado)) {
+        if (destacadosActuales >= 8) {
           toast.error('¡Límite excedido! Ya tienes 8 productos destacados.', {
             icon: '🚫',
             duration: 4000
           });
-          return; 
+          return; // Detenemos el guardado
         }
       }
     }
@@ -139,19 +140,20 @@ const AdminDashboard = () => {
         await axios.put(`${API_URL}/${productoEditando.id}`, datosParaEnviar);
         toast.success('Producto actualizado correctamente');
         
+        // Recargamos la lista de fondo para que la tabla se actualice
         cargarProductos();
         
-        // Actualizamos el estado interno para seguir editando si queremos
+        // Actualizamos el "productoEditando" con los nuevos datos para que si vuelves a dar guardar, sepa que sigue siendo el mismo
         setProductoEditando({ ...productoEditando, ...datosParaEnviar, id: productoEditando.id });
         
-        // NO cerramos el formulario
+        // NO cerramos el formulario. Se queda tal cual.
 
       } else {
         // --- CASO NUEVO: LIMPIAR Y CERRAR ---
         await axios.post(API_URL, datosParaEnviar);
         toast.success('Producto creado exitosamente');
         setMostrarFormulario(false);
-        abrirNuevo(); // Limpia para el próximo
+        abrirNuevo(); 
         cargarProductos();
       }
     } catch (error) {
@@ -245,18 +247,16 @@ const AdminDashboard = () => {
                   <input className="w-full border p-2 rounded-lg" value={formData.marca} onChange={e => setFormData({...formData, marca: e.target.value})} />
                 </div>
                 
-                {/* CHECKBOX DE DESTACADO */}
                 <div className="col-span-2 bg-yellow-50 p-3 rounded-lg border border-yellow-200 flex items-center gap-3">
                     <input 
                       type="checkbox" 
                       id="destacadoCheck"
-                      className="w-5 h-5 accent-yellow-500 cursor-pointer"
+                      className="w-5 h-5 accent-yellow-500"
                       checked={formData.destacado} 
                       onChange={e => setFormData({...formData, destacado: e.target.checked})} 
                     />
                     <label htmlFor="destacadoCheck" className="text-sm font-bold text-yellow-800 cursor-pointer select-none flex items-center gap-2">
-                       <Star size={16} fill={formData.destacado ? "currentColor" : "none"} /> 
-                       Mostrar en "Productos Destacados" (Máx. 8)
+                       <Star size={16} fill="currentColor" /> Mostrar en "Productos Destacados" (Inicio)
                     </label>
                 </div>
 
@@ -298,7 +298,7 @@ const AdminDashboard = () => {
                     <td className="px-4 py-4 flex items-center gap-3">
                       <div className="relative">
                         <img src={prod.imagenes?.principal} className="w-10 h-10 object-contain bg-white rounded border" alt="" />
-                        {prod.destacado && <div className="absolute -top-1 -right-1 bg-yellow-400 text-[8px] px-1 rounded-full border border-white shadow-sm">★</div>}
+                        {prod.destacado && <div className="absolute -top-1 -right-1 bg-yellow-400 text-[8px] px-1 rounded-full border border-white">★</div>}
                       </div>
                       <div className="flex flex-col">
                         <span className="font-bold line-clamp-1 max-w-[150px] md:max-w-xs">{prod.nombre}</span>
