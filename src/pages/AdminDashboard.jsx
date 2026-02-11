@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 const API_URL = 'https://tienda-online-fgstoreec-backend.onrender.com/api/productos';
 
 // --- CLAVE MAESTRA ---
-const ADMIN_PASSWORD = "TU_CONTRASEÑA_SECRETA_AQUI"; 
+const ADMIN_PASSWORD = "andresito"; 
 
 const AdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
