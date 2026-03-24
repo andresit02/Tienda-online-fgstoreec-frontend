@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ShoppingCart, CheckCircle, Filter, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // <--- IMPORTAR
+import { useNavigate } from 'react-router-dom';
 import { crearSlug } from '../helpers/slug';
 
 const Catalogo = ({
@@ -10,7 +10,7 @@ const Catalogo = ({
   agregarAlCarrito,
   esAccesorios = false
 }) => {
-  const navigate = useNavigate(); // <--- HOOK
+  const navigate = useNavigate();
   const esHotWheels = useMemo(() => productosIniciales.some(p => p.categoria === 'Hot Wheels'), [productosIniciales]);
   
   // --- ESTADOS DE FILTROS ---
@@ -56,28 +56,38 @@ const Catalogo = ({
     setFiltroDisponibilidad(prev => ({ ...prev, [tipo]: !prev[tipo] }));
   };
 
-  // --- 3. LÓGICA DE FILTRADO ---
-  const productosProcesados = productosIniciales.filter(p => {
-    const coincideTexto = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
-    
-    let coincideStock = true;
-    if (filtroDisponibilidad.disponibles && !filtroDisponibilidad.agotados) coincideStock = p.stock > 0;
-    else if (!filtroDisponibilidad.disponibles && filtroDisponibilidad.agotados) coincideStock = p.stock === 0;
+  // --- 3. LÓGICA DE FILTRADO Y ORDENAMIENTO ---
+  const productosProcesados = productosIniciales
+    .filter(p => {
+      const coincideTexto = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
+      
+      let coincideStock = true;
+      if (filtroDisponibilidad.disponibles && !filtroDisponibilidad.agotados) coincideStock = p.stock > 0;
+      else if (!filtroDisponibilidad.disponibles && filtroDisponibilidad.agotados) coincideStock = p.stock === 0;
 
-    if (esAccesorios) {
-        const coincideTipo = tiposAccesoriosSeleccionados.length === 0 || tiposAccesoriosSeleccionados.includes(p.categoria);
-        return coincideTexto && coincideStock && coincideTipo;
-    } else {
-        const marcaProd = p.marca || "Otras";
-        const coincideMarca = marcasSeleccionadas.length === 0 || marcasSeleccionadas.includes(marcaProd);
-        
-        const coincideFabricante = esHotWheels ? true : (fabricantesSeleccionados.length === 0 || fabricantesSeleccionados.includes(p.fabricante));
-        const coincideSerie = !esHotWheels ? true : (seriesSeleccionadas.length === 0 || (p.serie && seriesSeleccionadas.includes(p.serie)));
-        const coincideEscala = escalasSeleccionadas.length === 0 || escalasSeleccionadas.includes(p.escala);
+      if (esAccesorios) {
+          const coincideTipo = tiposAccesoriosSeleccionados.length === 0 || tiposAccesoriosSeleccionados.includes(p.categoria);
+          return coincideTexto && coincideStock && coincideTipo;
+      } else {
+          const marcaProd = p.marca || "Otras";
+          const coincideMarca = marcasSeleccionadas.length === 0 || marcasSeleccionadas.includes(marcaProd);
+          
+          const coincideFabricante = esHotWheels ? true : (fabricantesSeleccionados.length === 0 || fabricantesSeleccionados.includes(p.fabricante));
+          const coincideSerie = !esHotWheels ? true : (seriesSeleccionadas.length === 0 || (p.serie && seriesSeleccionadas.includes(p.serie)));
+          const coincideEscala = escalasSeleccionadas.length === 0 || escalasSeleccionadas.includes(p.escala);
 
-        return coincideTexto && coincideStock && coincideMarca && coincideFabricante && coincideSerie && coincideEscala;
-    }
-  });
+          return coincideTexto && coincideStock && coincideMarca && coincideFabricante && coincideSerie && coincideEscala;
+      }
+    })
+    .sort((a, b) => {
+      // NUEVO: Algoritmo para enviar los agotados al final
+      const stockA = a.stock > 0;
+      const stockB = b.stock > 0;
+
+      if (stockA && !stockB) return -1; // 'a' tiene stock y 'b' no -> 'a' va primero
+      if (!stockA && stockB) return 1;  // 'b' tiene stock y 'a' no -> 'b' va primero
+      return 0; // Ambos tienen stock o ambos están agotados -> mantienen su orden original
+    });
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12 animate-fade-in font-sans">
