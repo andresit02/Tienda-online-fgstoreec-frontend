@@ -1,36 +1,39 @@
 import React from "react";
 import { Facebook, Instagram, Phone, Mail, MapPin, ArrowRight } from "lucide-react";
+import { Link } from 'react-router-dom';
 
-export default function Footer({ setVistaActual }) {
+export default function Footer() {
   
-  const handleNavigation = (vista) => {
-    setVistaActual(vista);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // SOLUCIÓN AL PARPADEO: Salto instantáneo en lugar de 'smooth'
+  const scrollToTop = () => {
+    window.scrollTo(0, 0); 
   };
 
-  const FooterLink = ({ text, vista }) => (
-    <button 
-      onClick={() => handleNavigation(vista)} 
+  // Componente unificado para TODOS los enlaces
+  const FooterLink = ({ text, to }) => (
+    <Link 
+      to={to}
+      onClick={scrollToTop}
       className="text-slate-300 hover:text-white hover:translate-x-1 transition-all duration-300 text-base flex items-center gap-2 group py-1 w-full text-left"
     >
       <span className="w-0 overflow-hidden group-hover:w-4 transition-all duration-300 opacity-0 group-hover:opacity-100 flex-shrink-0">
         <ArrowRight size={16} className="text-red-500" />
       </span>
       {text}
-    </button>
+    </Link>
   );
 
   return (
     <footer className="bg-[#0f172a] text-slate-300 border-t border-slate-800 font-sans">
       
-      {/* SECCIÓN PRINCIPAL - REDUCIDO de py-20 a py-16 */}
-      <div className="max-w-6xl mx-auto px-6 py-16">  {/* py-20 (80px) → py-16 (64px) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">  {/* gap-12 → gap-10, lg:gap-20 → lg:gap-16 */}
+      {/* SECCIÓN PRINCIPAL */}
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
 
-          {/* 1. MARCA Y REDES - REDUCIDO space-y-8 a space-y-6 */}
-          <div className="space-y-6">  {/* space-y-8 (32px) → space-y-6 (24px) */}
+          {/* 1. MARCA Y REDES */}
+          <div className="space-y-6">
             <div>
-                <h2 className="text-4xl font-black italic tracking-tighter text-white mb-3">  {/* mb-2 → mb-3 (12px) */}
+                <h2 className="text-4xl font-black italic tracking-tighter text-white mb-3">
                   FG<span className="text-red-600">STOREEC</span>
                 </h2>
             </div>
@@ -39,7 +42,7 @@ export default function Footer({ setVistaActual }) {
               Vehículos a escala y varios productos mas. Compra fácil y rápido
             </p>
 
-            <div className="flex gap-4">  {/* gap-5 → gap-4 (16px) */}
+            <div className="flex gap-4">
               <a
                 href="https://www.facebook.com/fgstoreec"
                 target="_blank"
@@ -69,26 +72,30 @@ export default function Footer({ setVistaActual }) {
             </div>
           </div>
 
-          {/* 2. EXPLORAR - REDUCIDO mb-8 a mb-6 */}
+          {/* 2. EXPLORAR */}
           <div>
-            <h3 className="text-xl font-bold text-white mb-6 border-b-2 border-red-600/30 pb-3 inline-block">  {/* mb-8 → mb-6 (24px) */}
+            <h3 className="text-xl font-bold text-white mb-6 border-b-2 border-red-600/30 pb-3 inline-block">
               Explorar
             </h3>
-            <div className="flex flex-col gap-3">  {/* gap-4 → gap-3 (12px) */}
-              <FooterLink text="Inicio" vista="inicio" />
-              <FooterLink text="Motos a Escala" vista="motos" />
-              <FooterLink text="Autos a Escala" vista="autos" />
-              <FooterLink text="HotWheels" vista="hotwheels" />
-              <FooterLink text="Referencias de envíos" vista="pruebas" />
+            <div className="flex flex-col gap-3">
+              <FooterLink text="Inicio" to="/" />
+              <FooterLink text="Motos a Escala" to="/motos" />
+              <FooterLink text="Autos a Escala" to="/autos" />
+              <FooterLink text="HotWheels" to="/hotwheels" />
+              <FooterLink text="Accesorios" to="/accesorios" />
+              <FooterLink text="Referencias de envíos" to="/envios" />
+              
+              {/* SOLUCIÓN TAMAÑO: Ahora usa el mismo componente que el resto */}
+              <FooterLink text="Acceso Administrativo" to="/login" />
             </div>
           </div>
 
-          {/* 3. CONTACTO - REDUCIDO space-y-6 a space-y-5 */}
+          {/* 3. CONTACTO */}
           <div>
-            <h3 className="text-xl font-bold text-white mb-6 border-b-2 border-red-600/30 pb-3 inline-block">  {/* mb-8 → mb-6 (24px) */}
+            <h3 className="text-xl font-bold text-white mb-6 border-b-2 border-red-600/30 pb-3 inline-block">
               Contacto
             </h3>
-            <ul className="space-y-5">  {/* space-y-6 → space-y-5 (20px) */}
+            <ul className="space-y-5">
               <li className="flex items-start gap-4 text-slate-300 text-base">
                 <div className="bg-slate-800/50 p-2 rounded-lg shrink-0">
                     <MapPin className="text-red-500" size={20} />
@@ -118,12 +125,12 @@ export default function Footer({ setVistaActual }) {
         </div>
       </div>
 
-      {/* BARRA INFERIOR - REDUCIDO py-8 a py-6 */}
-      <div className="bg-[#020617] py-6 border-t border-slate-800/50">  {/* py-8 → py-6 (24px) */}
+      {/* BARRA INFERIOR */}
+      <div className="bg-[#020617] py-6 border-t border-slate-800/50">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400 font-medium">  {/* gap-6 → gap-4 (16px) */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400 font-medium">
             <p className="text-center md:text-left">© 2026 FGSTOREEC. Todos los derechos reservados.</p>
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6">  {/* gap-6 → gap-4, md:gap-8 → md:gap-6 */}
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
               <button className="hover:text-white transition-colors whitespace-nowrap">Términos y Condiciones</button>
               <button className="hover:text-white transition-colors whitespace-nowrap">Política de Privacidad</button>
             </div>

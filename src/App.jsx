@@ -11,6 +11,9 @@ import Pruebas from './pages/Pruebas';
 import ProductoDetalle from "./pages/ProductoDetalle";
 import Footer from "./components/Footer";
 
+import Login from './pages/Login';
+import VerificarCorreo from './pages/VerificarCorreo';
+
 import { useCarrito } from './hooks/useCarrito';
 import { useProductos } from './hooks/useProductos';
 
@@ -107,7 +110,9 @@ function App() {
 
           <Route path="/envios" element={ <Pruebas /> } />
 
-          {/* RUTA DE ADMIN */}
+          {/* --- RUTAS DE SEGURIDAD Y ADMIN --- */}
+          <Route path="/login" element={ <Login /> } />
+          <Route path="/verify-email" element={ <VerificarCorreo /> } />
           <Route path="/admin" element={ <AdminDashboard /> } />
 
           {/* DETALLE DE PRODUCTO */}
