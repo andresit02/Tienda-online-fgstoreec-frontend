@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react'; // Añadimos useRef
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
@@ -6,23 +6,31 @@ import { CheckCircle, XCircle, Loader } from 'lucide-react';
 const VerificarCorreo = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const [estado, setEstado] = useState('cargando'); // cargando, exito, error
+  const [estado, setEstado] = useState('cargando');
   const [mensaje, setMensaje] = useState('');
   const navigate = useNavigate();
+  
+  // 1. Añadimos esta referencia para evitar la doble ejecución
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    if (!token) {
-      setEstado('error');
-      setMensaje('No se proporcionó un token de verificación válido.');
-      return;
-    }
+    // 2. Si no hay token o si ya se ejecutó una vez, no hacemos nada
+    if (!token || hasRun.current) return;
+    
+    // Marcamos que ya se está ejecutando
+    hasRun.current = true;
 
     const verificar = async () => {
       try {
-        const res = await axios.get(`https://tienda-online-fgstoreec-backend.onrender.com/api/auth/verify-email?token=${token}`);
+        // 3. Usamos la variable de entorno en lugar de la URL fija
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://tienda-online-fgstoreec-backend.onrender.com';
+        const res = await axios.get(`${apiUrl}/api/auth/verify-email?token=${token}` );
+        
         setEstado('exito');
         setMensaje(res.data.message || 'Tu cuenta ha sido verificada correctamente.');
       } catch (error) {
+        // Si el error es porque el token ya no existe pero el usuario ya está verificado,
+        // podrías manejarlo aquí, pero con useRef esto ya no debería pasar.
         setEstado('error');
         setMensaje(error.response?.data?.error || 'El enlace es inválido o ha expirado.');
       }
