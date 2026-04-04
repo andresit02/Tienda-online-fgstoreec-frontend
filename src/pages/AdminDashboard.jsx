@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Edit, Plus, X, Save, Search, Lock, Star } from 'lucide-react';
+import { Trash2, Edit, Plus, X, Save, Search, Star } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-// Para pruebas locales usamos el puerto 4000. Luego lo cambiaremos a Render.
+import { useAuth } from '../context/AuthContext'; 
+
 const API_URL = 'https://tienda-online-fgstoreec-backend.onrender.com/api/productos';
 
-const AdminDashboard = () => {
+export default function AdminDashboard() {
+  const { user, logout, token } = useAuth(); 
   const navigate = useNavigate();
+
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -17,32 +20,25 @@ const AdminDashboard = () => {
   
   const initialFormState = {
     nombre: '', precio: 0, stock: 0, categoria: 'Motos',
-    marca: '', imagenPrincipal: '', descripcion: '', destacado: false 
+    marca: '', fabricante: '', escala: '', serie: '', materiales: '', 
+    medidasCaja: '', tipo: '', caracteristicas: '', descripcion: '', 
+    imagenPrincipal: '', galeria: '', destacado: false 
   };
 
   const [formData, setFormData] = useState(initialFormState);
 
-  // OBTENER EL TOKEN DEL NAVEGADOR
-  const token = localStorage.getItem('fgstore_token');
-  
-  // CONFIGURACIÓN PARA ENVIAR EL TOKEN AL BACKEND 
   const config = {
     headers: { Authorization: `Bearer ${token}` }
   };
 
   useEffect(() => {
-    // Si no hay token, lo mandamos al login de inmediato
-    if (!token) {
-      toast.error("Debes iniciar sesión primero");
-      navigate('/login');
-      return;
+    if (token) {
+      cargarProductos();
     }
-    cargarProductos();
-  }, [token, navigate]);
+  }, [token]);
 
   const handleLogout = () => {
-    localStorage.removeItem("fgstore_token");
-    toast.success("Sesión cerrada");
+    logout(); 
     navigate('/login');
   };
 
@@ -54,7 +50,7 @@ const AdminDashboard = () => {
     } catch (error) {
       if (cargando) setCargando(false);
       if (error.response?.status === 401 || error.response?.status === 403) {
-        handleLogout(); // Si el token expiró, lo sacamos
+        handleLogout(); 
       }
     }
   };
@@ -62,10 +58,17 @@ const AdminDashboard = () => {
   const handleEliminar = async (id) => {
     if (!window.confirm('¿Estás seguro de eliminar este producto?')) return;
     try {
-      await axios.delete(`${API_URL}/${id}`, config); // Se envía el token
+      await axios.delete(`${API_URL}/${id}`, config); 
       setProductos(productos.filter(p => p.id !== id));
       toast.success('Producto eliminado');
-    } catch (error) { toast.error('No se pudo eliminar'); }
+    } catch (error) {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error('Tu sesión expiró. Vuelve a iniciar sesión.');
+        handleLogout();
+      } else {
+        toast.error('No se pudo eliminar');
+      }
+    }
   };
 
   const abrirNuevo = () => {
@@ -77,9 +80,21 @@ const AdminDashboard = () => {
   const abrirEditar = (producto) => {
     setProductoEditando(producto);
     setFormData({
-      nombre: producto.nombre, precio: producto.precio, stock: producto.stock,
-      categoria: producto.categoria, marca: producto.marca || '',
-      imagenPrincipal: producto.imagenes?.principal || '', descripcion: producto.descripcion || '',
+      nombre: producto.nombre, 
+      precio: producto.precio, 
+      stock: producto.stock,
+      categoria: producto.categoria, 
+      marca: producto.marca || '',
+      fabricante: producto.fabricante || '',
+      escala: producto.escala || '',
+      serie: producto.serie || '',
+      materiales: producto.materiales || '',
+      medidasCaja: producto.medidasCaja || '',
+      tipo: producto.tipo || '',
+      caracteristicas: producto.caracteristicas ? producto.caracteristicas.join('\n') : '',
+      descripcion: producto.descripcion || '',
+      imagenPrincipal: producto.imagenes?.principal || '', 
+      galeria: producto.imagenes?.galeria ? producto.imagenes.galeria.join('\n') : '', 
       destacado: producto.destacado || false 
     });
     setMostrarFormulario(true);
@@ -100,29 +115,64 @@ const AdminDashboard = () => {
       }
     }
 
+    const arrayGaleria = formData.galeria
+      ? formData.galeria.split('\n').map(url => url.trim()).filter(url => url !== '') : [];
+      
+    const arrayCaracteristicas = formData.caracteristicas
+      ? formData.caracteristicas.split('\n').map(c => c.trim()).filter(c => c !== '') : [];
+
+    // Empaquetamos SOLO los datos universales primero
     const datosParaEnviar = {
-      nombre: formData.nombre, descripcion: formData.descripcion, precio: parseFloat(formData.precio),
-      stock: parseInt(formData.stock), categoria: formData.categoria, marca: formData.marca,
+      nombre: formData.nombre, 
+      precio: parseFloat(formData.precio),
+      stock: parseInt(formData.stock), 
+      categoria: formData.categoria, 
+      descripcion: formData.descripcion, 
+      caracteristicas: arrayCaracteristicas,
       destacado: formData.destacado,
-      imagenes: { principal: formData.imagenPrincipal, galeria: productoEditando?.imagenes?.galeria || [] },
-      caracteristicas: productoEditando?.caracteristicas || [] 
+      imagenes: { principal: formData.imagenPrincipal, galeria: arrayGaleria }
     };
+
+    // AÑADIMOS ESTRICTAMENTE LOS CAMPOS DE CADA CATEGORÍA PARA NO ROMPER LA BASE DE DATOS
+    if (formData.categoria === 'Hot Wheels') {
+      if (formData.marca) datosParaEnviar.marca = formData.marca;
+      if (formData.escala) datosParaEnviar.escala = formData.escala;
+      if (formData.serie) datosParaEnviar.serie = formData.serie;
+    } else if (formData.categoria === 'Autos') {
+      if (formData.marca) datosParaEnviar.marca = formData.marca;
+      if (formData.escala) datosParaEnviar.escala = formData.escala;
+    } else if (formData.categoria === 'Motos') {
+      if (formData.marca) datosParaEnviar.marca = formData.marca;
+      if (formData.fabricante) datosParaEnviar.fabricante = formData.fabricante;
+      if (formData.escala) datosParaEnviar.escala = formData.escala;
+      if (formData.materiales) datosParaEnviar.materiales = formData.materiales;
+      if (formData.medidasCaja) datosParaEnviar.medidasCaja = formData.medidasCaja;
+    } else if (formData.categoria === 'Accesorios') {
+      if (formData.tipo) datosParaEnviar.tipo = formData.tipo;
+    }
 
     try {
       if (productoEditando) {
-        await axios.put(`${API_URL}/${productoEditando.id}`, datosParaEnviar, config); // Se envía token
-        toast.success('Producto actualizado');
+        await axios.put(`${API_URL}/${productoEditando.id}`, datosParaEnviar, config); 
+        toast.success('Producto actualizado con éxito');
         cargarProductos();
         setProductoEditando({ ...productoEditando, ...datosParaEnviar, id: productoEditando.id });
+        setMostrarFormulario(false);
       } else {
-        await axios.post(API_URL, datosParaEnviar, config); // Se envía token
-        toast.success('Producto creado');
+        await axios.post(API_URL, datosParaEnviar, config); 
+        toast.success('Producto creado con éxito');
         setMostrarFormulario(false);
         abrirNuevo(); 
         cargarProductos();
       }
     } catch (error) {
-      toast.error('Error al guardar: ' + (error.response?.data?.error || 'Sin permisos'));
+      console.error("Error del backend:", error.response?.data);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error('Por seguridad, tu sesión expiró. Vuelve a entrar.');
+        handleLogout();
+      } else {
+        toast.error('Error al guardar: ' + (error.response?.data?.error || 'Revisa los datos'));
+      }
     }
   };
 
@@ -136,10 +186,10 @@ const AdminDashboard = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-black text-slate-900">Panel Administrador</h1>
-            <p className="text-slate-500 text-sm">Gestiona tu inventario (Modo Seguro)</p>
+            <p className="text-slate-500 text-sm">Hola {user?.nombre}, aquí puedes gestionar tu inventario</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
-             <button onClick={handleLogout} className="flex-1 md:flex-none bg-red-100 text-red-600 px-4 py-2 rounded-xl font-bold hover:bg-red-200 transition">Salir</button>
+             <button onClick={() => { handleLogout(); toast.success("Sesión cerrada"); }} className="flex-1 md:flex-none bg-red-100 text-red-600 px-4 py-2 rounded-xl font-bold hover:bg-red-200 transition">Salir</button>
              <button onClick={abrirNuevo} className="flex-1 md:flex-none bg-slate-900 text-white px-4 py-2 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-slate-800 transition">
                 <Plus size={20} /> <span className="hidden sm:inline">Nuevo Producto</span><span className="sm:hidden">Nuevo</span>
              </button>
@@ -158,9 +208,12 @@ const AdminDashboard = () => {
                 <h2 className="text-xl font-bold">{productoEditando ? 'Editar Producto' : 'Nuevo Producto'}</h2>
                 <button onClick={() => setMostrarFormulario(false)} className="p-2 hover:bg-slate-100 rounded-full"><X /></button>
               </div>
+              
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                {/* --- CAMPOS UNIVERSALES --- */}
                 <div className="col-span-2">
-                  <label className="block text-sm font-bold mb-1">Nombre</label>
+                  <label className="block text-sm font-bold mb-1">Nombre del Producto</label>
                   <input required className="w-full border p-2 rounded-lg" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} />
                 </div>
                 <div>
@@ -168,35 +221,115 @@ const AdminDashboard = () => {
                   <input type="number" step="0.01" required className="w-full border p-2 rounded-lg" value={formData.precio} onChange={e => setFormData({...formData, precio: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold mb-1">Stock</label>
+                  <label className="block text-sm font-bold mb-1">Stock Disponible</label>
                   <input type="number" required className="w-full border p-2 rounded-lg" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
                 </div>
-                <div>
-                  <label className="block text-sm font-bold mb-1">Categoría</label>
-                  <select className="w-full border p-2 rounded-lg" value={formData.categoria} onChange={e => setFormData({...formData, categoria: e.target.value})}>
-                    <option value="Motos">Motos</option><option value="Autos">Autos</option><option value="Hot Wheels">Hot Wheels</option><option value="Accesorios">Accesorios</option>
+                
+                <div className="col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-200 mb-2">
+                  <label className="block text-sm font-black text-slate-900 mb-1">Categoría del Producto</label>
+                  <select 
+                    className="w-full border p-2 rounded-lg bg-white disabled:bg-slate-200 disabled:text-slate-500 disabled:cursor-not-allowed" 
+                    value={formData.categoria} 
+                    onChange={e => setFormData({...formData, categoria: e.target.value})}
+                    disabled={!!productoEditando} // <-- AQUÍ BLOQUEAMOS LA CATEGORÍA SI ESTAMOS EDITANDO
+                  >
+                    <option value="Motos">Motos</option>
+                    <option value="Autos">Autos</option>
+                    <option value="Hot Wheels">Hot Wheels</option>
+                    <option value="Accesorios">Accesorios</option>
                   </select>
+                  {productoEditando && (
+                    <p className="text-xs text-red-500 mt-1 font-bold">La categoría no se puede cambiar en modo edición para evitar pérdida de datos.</p>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-sm font-bold mb-1">Marca</label>
-                  <input className="w-full border p-2 rounded-lg" value={formData.marca} onChange={e => setFormData({...formData, marca: e.target.value})} />
+
+                {/* --- CAMPOS DINÁMICOS SEGÚN CATEGORÍA --- */}
+
+                {/* 1. HOT WHEELS */}
+                {formData.categoria === 'Hot Wheels' && (
+                  <>
+                    <div><label className="block text-sm font-bold mb-1">Serie</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: Basicos, Premium" value={formData.serie} onChange={e => setFormData({...formData, serie: e.target.value})} /></div>
+                    
+                    <div><label className="block text-sm font-bold mb-1">Marca del vehículo</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: Nissan, Ford" value={formData.marca} onChange={e => setFormData({...formData, marca: e.target.value})} /></div>
+                    
+                    <div className="col-span-2"><label className="block text-sm font-bold mb-1">Escala</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: 1:64" value={formData.escala} onChange={e => setFormData({...formData, escala: e.target.value})} /></div>
+                  </>
+                )}
+
+                {/* 2. AUTOS (Sin Serie) */}
+                {formData.categoria === 'Autos' && (
+                  <>
+                    <div><label className="block text-sm font-bold mb-1">Marca del vehículo</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: Nissan, Ford" value={formData.marca} onChange={e => setFormData({...formData, marca: e.target.value})} /></div>
+                    
+                    <div><label className="block text-sm font-bold mb-1">Escala</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: 1:24, 1:32" value={formData.escala} onChange={e => setFormData({...formData, escala: e.target.value})} /></div>
+                  </>
+                )}
+
+                {/* 3. MOTOS */}
+                {formData.categoria === 'Motos' && (
+                  <>
+                    <div><label className="block text-sm font-bold mb-1">Fabricante</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: Maisto, Welly" value={formData.fabricante} onChange={e => setFormData({...formData, fabricante: e.target.value})} /></div>
+                    
+                    <div><label className="block text-sm font-bold mb-1">Marca de la Moto</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: Yamaha, Honda" value={formData.marca} onChange={e => setFormData({...formData, marca: e.target.value})} /></div>
+                    
+                    <div><label className="block text-sm font-bold mb-1">Escala</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: 1:12, 1:18" value={formData.escala} onChange={e => setFormData({...formData, escala: e.target.value})} /></div>
+                    
+                    <div><label className="block text-sm font-bold mb-1">Materiales</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: Metal y Plástico" value={formData.materiales} onChange={e => setFormData({...formData, materiales: e.target.value})} /></div>
+                    
+                    <div className="col-span-2"><label className="block text-sm font-bold mb-1">Medidas de la caja</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: 20cm x 10cm x 15cm" value={formData.medidasCaja} onChange={e => setFormData({...formData, medidasCaja: e.target.value})} /></div>
+                  </>
+                )}
+
+                {/* 4. ACCESORIOS */}
+                {formData.categoria === 'Accesorios' && (
+                  <>
+                    <div className="col-span-2"><label className="block text-sm font-bold mb-1">Tipo de Accesorio</label>
+                    <input className="w-full border p-2 rounded-lg" placeholder="Ej: Gorra, Llavero, Casco" value={formData.tipo} onChange={e => setFormData({...formData, tipo: e.target.value})} /></div>
+                  </>
+                )}
+
+                {/* --- CAMPOS DE TEXTO LARGOS --- */}
+                <div className="col-span-2 mt-2">
+                    <label className="block text-sm font-bold mb-1">Características (Una por línea)</label>
+                    <textarea placeholder="Ej: Llantas de goma&#10;Apertura de puertas&#10;Suspensión activa" className="w-full border p-2 rounded-lg text-sm" rows="3" value={formData.caracteristicas} onChange={e => setFormData({...formData, caracteristicas: e.target.value})}></textarea>
                 </div>
-                <div className="col-span-2 bg-yellow-50 p-3 rounded-lg border border-yellow-200 flex items-center gap-3">
+
+                <div className="col-span-2">
+                    <label className="block text-sm font-bold mb-1">Descripción General</label>
+                    <textarea className="w-full border p-2 rounded-lg text-sm" rows="3" value={formData.descripcion} onChange={e => setFormData({...formData, descripcion: e.target.value})}></textarea>
+                </div>
+
+                {/* --- SECCIÓN DE IMÁGENES Y DESTACADO --- */}
+                <div className="col-span-2 bg-yellow-50 p-3 rounded-lg border border-yellow-200 flex items-center gap-3 mt-2">
                     <input type="checkbox" id="destacadoCheck" className="w-5 h-5 accent-yellow-500" checked={formData.destacado} onChange={e => setFormData({...formData, destacado: e.target.checked})} />
-                    <label htmlFor="destacadoCheck" className="text-sm font-bold text-yellow-800 cursor-pointer flex items-center gap-2"><Star size={16} fill="currentColor" /> Mostrar en Destacados</label>
+                    <label htmlFor="destacadoCheck" className="text-sm font-bold text-yellow-800 cursor-pointer flex items-center gap-2"><Star size={16} fill="currentColor" /> Mostrar en Carrusel de Destacados (Inicio)</label>
                 </div>
+                
                 <div className="col-span-2">
-                  <label className="block text-sm font-bold mb-1">URL Imagen</label>
-                  <input required placeholder="https://..." className="w-full border p-2 rounded-lg" value={formData.imagenPrincipal} onChange={e => setFormData({...formData, imagenPrincipal: e.target.value})} />
-                  {formData.imagenPrincipal && <img src={formData.imagenPrincipal} alt="Vista" className="mt-2 h-20 object-contain border rounded" />}
+                  <label className="block text-sm font-bold mb-1">URL Imagen Principal</label>
+                  <input required placeholder="https://res.cloudinary.com/..." className="w-full border p-2 rounded-lg" value={formData.imagenPrincipal} onChange={e => setFormData({...formData, imagenPrincipal: e.target.value})} />
+                  {formData.imagenPrincipal && <img src={formData.imagenPrincipal} alt="Vista" className="mt-2 h-20 object-contain border rounded bg-slate-50" />}
                 </div>
+
                 <div className="col-span-2">
-                    <label className="block text-sm font-bold mb-1">Descripción</label>
-                    <textarea className="w-full border p-2 rounded-lg" rows="3" value={formData.descripcion} onChange={e => setFormData({...formData, descripcion: e.target.value})}></textarea>
+                  <label className="block text-sm font-bold mb-1">Galería Extra (Una URL por línea)</label>
+                  <textarea placeholder="Pega aquí más enlaces de Cloudinary..." className="w-full border p-2 rounded-lg text-sm" rows="3" value={formData.galeria} onChange={e => setFormData({...formData, galeria: e.target.value})}></textarea>
                 </div>
+
+                {/* --- BOTONES --- */}
                 <div className="col-span-2 mt-4 flex gap-3">
-                  <button type="button" onClick={() => setMostrarFormulario(false)} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl">Cancelar</button>
-                  <button type="submit" className="flex-1 py-3 bg-slate-900 text-white font-bold rounded-xl flex justify-center items-center gap-2"><Save size={18} /> Guardar</button>
+                  <button type="button" onClick={() => setMostrarFormulario(false)} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200 transition">Cancelar</button>
+                  <button type="submit" className="flex-1 py-3 bg-slate-900 text-white font-bold rounded-xl flex justify-center items-center gap-2 hover:bg-slate-800 transition"><Save size={18} /> Guardar Producto</button>
                 </div>
               </form>
             </div>
@@ -210,7 +343,7 @@ const AdminDashboard = () => {
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
               {productosFiltrados.map((prod) => (
-                <tr key={prod.id} className="hover:bg-slate-50">
+                <tr key={prod.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-4 flex items-center gap-3">
                     <img src={prod.imagenes?.principal} className="w-10 h-10 object-contain bg-white rounded border" alt="" />
                     <span className="font-bold">{prod.nombre}</span>
@@ -219,8 +352,8 @@ const AdminDashboard = () => {
                   <td className="px-4 py-4">{prod.stock}</td>
                   <td className="px-4 py-4">
                     <div className="flex justify-center gap-2">
-                      <button onClick={() => abrirEditar(prod)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit size={18} /></button>
-                      <button onClick={() => handleEliminar(prod.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+                      <button onClick={() => abrirEditar(prod)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"><Edit size={18} /></button>
+                      <button onClick={() => handleEliminar(prod.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"><Trash2 size={18} /></button>
                     </div>
                   </td>
                 </tr>
@@ -231,6 +364,4 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-};
-
-export default AdminDashboard;
+}

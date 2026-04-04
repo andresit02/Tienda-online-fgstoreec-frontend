@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Loader } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
 
-export default function LoginMejorado() {
+export default function Registro() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [formData, setFormData] = useState({
+    nombre: '',
     email: '',
     password: '',
+    confirmPassword: '',
   });
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
+
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = 'El nombre es requerido';
+    }
 
     if (!formData.email.trim()) {
       newErrors.email = 'El correo es requerido';
@@ -28,6 +32,12 @@ export default function LoginMejorado() {
 
     if (!formData.password) {
       newErrors.password = 'La contraseña es requerida';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
 
     setErrors(newErrors);
@@ -56,26 +66,18 @@ export default function LoginMejorado() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
+        `${import.meta.env.VITE_API_URL}/api/auth/register`,
         {
+          nombre: formData.nombre,
           email: formData.email,
           password: formData.password,
         }
       );
 
-      const { user, token } = response.data;
-      login(user, token, rememberMe);
-
-      toast.success(`¡Bienvenido, ${user.nombre}!`);
-
-      // Redirigir según el rol
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      toast.success('¡Registro exitoso! Verifica tu correo electrónico.');
+      navigate('/verify-email');
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Error al iniciar sesión';
+      const errorMessage = error.response?.data?.error || 'Error al registrarse';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -87,13 +89,34 @@ export default function LoginMejorado() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black text-slate-900 mb-2">Iniciar Sesión</h1>
-          <p className="text-slate-600">Accede a tu cuenta de FGSTOREEC</p>
+          <h1 className="text-4xl font-black text-slate-900 mb-2">Crear Cuenta</h1>
+          <p className="text-slate-600">Únete a FGSTOREEC y disfruta de nuestros modelos a escala</p>
         </div>
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Nombre */}
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-2">Nombre Completo</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  placeholder="Tu nombre"
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-lg transition-all focus:outline-none ${
+                    errors.nombre
+                      ? 'border-red-500 focus:border-red-600 bg-red-50'
+                      : 'border-slate-200 focus:border-red-600 focus:bg-white'
+                  }`}
+                />
+              </div>
+              {errors.nombre && <p className="text-red-600 text-sm mt-1">{errors.nombre}</p>}
+            </div>
+
             {/* Email */}
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-2">Correo Electrónico</label>
@@ -125,7 +148,7 @@ export default function LoginMejorado() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Tu contraseña"
+                  placeholder="Mínimo 8 caracteres"
                   className={`w-full pl-12 pr-12 py-3 border-2 rounded-lg transition-all focus:outline-none ${
                     errors.password
                       ? 'border-red-500 focus:border-red-600 bg-red-50'
@@ -143,20 +166,32 @@ export default function LoginMejorado() {
               {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
+            {/* Confirmar Contraseña */}
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-2">Confirmar Contraseña</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
                 <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Repite tu contraseña"
+                  className={`w-full pl-12 pr-12 py-3 border-2 rounded-lg transition-all focus:outline-none ${
+                    errors.confirmPassword
+                      ? 'border-red-500 focus:border-red-600 bg-red-50'
+                      : 'border-slate-200 focus:border-red-600 focus:bg-white'
+                  }`}
                 />
-                <span className="text-sm text-slate-600 font-medium">Recuérdame</span>
-              </label>
-              <Link to="/forgot-password" className="text-sm text-red-600 font-bold hover:text-red-700 transition-colors">
-                ¿Olvidaste tu contraseña?
-              </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {errors.confirmPassword && <p className="text-red-600 text-sm mt-1">{errors.confirmPassword}</p>}
             </div>
 
             {/* Submit Button */}
@@ -168,10 +203,10 @@ export default function LoginMejorado() {
               {loading ? (
                 <>
                   <Loader size={20} className="animate-spin" />
-                  Iniciando sesión...
+                  Registrando...
                 </>
               ) : (
-                'Iniciar Sesión'
+                'Crear Cuenta'
               )}
             </button>
           </form>
@@ -179,9 +214,9 @@ export default function LoginMejorado() {
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-slate-600">
-              ¿No tienes cuenta?{' '}
-              <Link to="/registro" className="text-red-600 font-bold hover:text-red-700 transition-colors">
-                Regístrate aquí
+              ¿Ya tienes cuenta?{' '}
+              <Link to="/login" className="text-red-600 font-bold hover:text-red-700 transition-colors">
+                Inicia sesión aquí
               </Link>
             </p>
           </div>

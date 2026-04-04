@@ -84,9 +84,6 @@ export default function Footer() {
               <FooterLink text="HotWheels" to="/hotwheels" />
               <FooterLink text="Accesorios" to="/accesorios" />
               <FooterLink text="Referencias de envíos" to="/envios" />
-              
-              {/* SOLUCIÓN TAMAÑO: Ahora usa el mismo componente que el resto */}
-              <FooterLink text="Acceso Administrativo" to="/login" />
             </div>
           </div>
 

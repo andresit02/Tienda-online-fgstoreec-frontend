@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+Cuentas.txt
 
 # Editor directories and files
 .vscode/*

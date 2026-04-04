@@ -1,9 +1,13 @@
-import AdminDashboard from './pages/AdminDashboard';
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom'; 
-import { Toaster } from 'react-hot-toast'; // 1. Importación de la librería
+import { Toaster } from 'react-hot-toast'; 
 
-import Navbar from './components/BarraNavegacion'; 
+// 1. IMPORTACIONES CRÍTICAS DE AUTENTICACIÓN QUE FALTABAN
+import { AuthProvider } from './context/AuthContext'; // [cite: 9]
+import ProtectedRoute from './components/ProtectedRoute'; // [cite: 10]
+
+import AdminDashboard from './pages/AdminDashboard';
+import NavbarMejorada from './components/BarraNavegacion'; // (O BarraNavegacionMejorada, según como lo hayas nombrado)
 import CartDrawer from './components/CarritoLateral'; 
 import Home from './pages/Inicio';
 import Catalog from './pages/Catalogo';
@@ -11,18 +15,22 @@ import Pruebas from './pages/Pruebas';
 import ProductoDetalle from "./pages/ProductoDetalle";
 import Footer from "./components/Footer";
 
-import Login from './pages/Login';
-import VerificarCorreo from './pages/VerificarCorreo';
+// 2. IMPORTAMOS LAS NUEVAS PANTALLAS DEL PROFESIONAL
+import LoginMejorado
+ from './pages/Login'; // [cite: 16]
+import Registro from './pages/Registro'; // [cite: 15]
+import VerificarCorreo from './pages/VerificarCorreo'; // [cite: 17]
+import OlvideContrasena from './pages/OlvidéContraseña'; // [cite: 19]
+import RestablecerContrasena from './pages/RestablecerContraseña'; // [cite: 20]
 
 import { useCarrito } from './hooks/useCarrito';
 import { useProductos } from './hooks/useProductos';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-  const action = useNavigationType(); // Detecta si es PUSH, POP o REPLACE
+  const action = useNavigationType(); 
 
   useEffect(() => {
-    // Si la acción NO es "volver atrás" (POP), entonces sube el scroll.
     if (action !== 'POP') {
       window.scrollTo(0, 0);
     }
@@ -37,15 +45,12 @@ function App() {
     eliminarDelCarrito, actualizarCantidad, totalCarrito 
   } = useCarrito();
 
-  // OBTENEMOS LOS DATOS REALES DE LA NUBE
   const { productos, loading } = useProductos();
 
-  // Pantalla de carga simple
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center font-bold">Cargando Tienda...</div>;
   }
 
-  // FILTRAMOS LOS PRODUCTOS
   const listaMotos = productos.filter(p => p.categoria === 'Motos');
   const listaAutos = productos.filter(p => p.categoria === 'Autos');
   const listaHotWheels = productos.filter(p => p.categoria === 'Hot Wheels');
@@ -54,89 +59,57 @@ function App() {
   const destacados = productos.filter(p => p.destacado === true).slice(0, 8); 
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
-      <ScrollToTop />
-      
-      {/* 2. AQUÍ COLOCAMOS EL COMPONENTE PARA QUE SE VEAN LAS NOTIFICACIONES */}
-      <Toaster position="top-center" reverseOrder={false} />
-      
-      <Navbar 
-        carritoCount={carrito.reduce((acc, item) => acc + item.cantidad, 0)} 
-        onOpenCart={() => setIsCarritoAbierto(true)}
-      />
-      
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={
-            <Home 
-              productos={destacados}
-              agregarAlCarrito={agregarAlCarrito}
-            />
-          } />
+    // 3. ENVOLVEMOS TODO CON AUTHPROVIDER (Esto soluciona tu error de inmediato)
+    <AuthProvider>
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
+        <ScrollToTop />
+        
+        <Toaster position="top-center" reverseOrder={false} />
+        
+        <NavbarMejorada
+          carritoCount={carrito.reduce((acc, item) => acc + item.cantidad, 0)} 
+          onOpenCart={() => setIsCarritoAbierto(true)}
+        />
+        
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home productos={destacados} agregarAlCarrito={agregarAlCarrito} />} />
+            <Route path="/motos" element={<Catalog productosIniciales={listaMotos} titulo="Motos a Escala" agregarAlCarrito={agregarAlCarrito} />} />
+            <Route path="/autos" element={<Catalog productosIniciales={listaAutos} titulo="Autos a Escala" agregarAlCarrito={agregarAlCarrito} />} />
+            <Route path="/hotwheels" element={<Catalog productosIniciales={listaHotWheels} titulo="Hot Wheels" agregarAlCarrito={agregarAlCarrito} />} />
+            <Route path="/accesorios" element={<Catalog productosIniciales={listaAccesorios} titulo="Accesorios" subtitulo="Complementos para tu colección" agregarAlCarrito={agregarAlCarrito} esAccesorios={true} />} />
+            <Route path="/envios" element={ <Pruebas /> } />
 
-          <Route path="/motos" element={
-             <Catalog 
-               productosIniciales={listaMotos}
-               titulo="Motos a Escala"
-               agregarAlCarrito={agregarAlCarrito}
-             />
-          } />
+            {/* --- 4. NUEVAS RUTAS DE AUTENTICACIÓN --- */}
+            <Route path="/registro" element={ <Registro /> } /> 
+            <Route path="/login" element={ <LoginMejorado /> } />
+            <Route path="/verify-email" element={ <VerificarCorreo /> } />
+            <Route path="/forgot-password" element={ <OlvideContrasena /> } />
+            <Route path="/reset-password" element={ <RestablecerContrasena /> } />
 
-          <Route path="/autos" element={
-             <Catalog 
-               productosIniciales={listaAutos}
-               titulo="Autos a Escala"
-               agregarAlCarrito={agregarAlCarrito}
-             />
-          } />
+            {/* --- 5. RUTA DE ADMIN PROTEGIDA --- */}
+            <Route path="/admin" element={ 
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/hotwheels" element={
-             <Catalog 
-               productosIniciales={listaHotWheels}
-               titulo="Hot Wheels"
-               agregarAlCarrito={agregarAlCarrito}
-             />
-          } />
+            <Route path="/producto/:categoria/:slug" element={<ProductoDetalle agregarAlCarrito={agregarAlCarrito} todosLosProductos={productos} />} />
+          </Routes>
+        </main>
 
-          <Route path="/accesorios" element={
-             <Catalog 
-               productosIniciales={listaAccesorios}
-               titulo="Accesorios"
-               subtitulo="Complementos para tu colección"
-               agregarAlCarrito={agregarAlCarrito}
-               esAccesorios={true}
-             />
-          } />
-
-          <Route path="/envios" element={ <Pruebas /> } />
-
-          {/* --- RUTAS DE SEGURIDAD Y ADMIN --- */}
-          <Route path="/login" element={ <Login /> } />
-          <Route path="/verify-email" element={ <VerificarCorreo /> } />
-          <Route path="/admin" element={ <AdminDashboard /> } />
-
-          {/* DETALLE DE PRODUCTO */}
-          <Route path="/producto/:categoria/:slug" element={
-            <ProductoDetalle
-              agregarAlCarrito={agregarAlCarrito}
-              todosLosProductos={productos} 
-            />
-          } />
-
-        </Routes>
-      </main>
-
-      <CartDrawer
-        abierto={isCarritoAbierto}
-        cerrar={() => setIsCarritoAbierto(false)}
-        carrito={carrito}
-        total={totalCarrito}
-        eliminarItem={eliminarDelCarrito}
-        actualizarCantidad={actualizarCantidad}
-      />
-      
-      <Footer />
-    </div>
+        <CartDrawer
+          abierto={isCarritoAbierto}
+          cerrar={() => setIsCarritoAbierto(false)}
+          carrito={carrito}
+          total={totalCarrito}
+          eliminarItem={eliminarDelCarrito}
+          actualizarCantidad={actualizarCantidad}
+        />
+        
+        <Footer />
+      </div>
+    </AuthProvider>
   );
 }
 

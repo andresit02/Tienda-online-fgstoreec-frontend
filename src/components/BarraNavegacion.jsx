@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Menu, X, Flame, Truck } from 'lucide-react';
+import { ShoppingBag, Menu, X, Flame, Truck, Settings, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-// 1. NUEVOS IMPORTS
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ carritoCount, onOpenCart }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   
-  // 2. HOOK PARA SABER LA RUTA ACTUAL
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -17,14 +19,25 @@ export default function Navbar({ carritoCount, onOpenCart }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Función auxiliar para verificar ruta activa
+  // Cerrar menús al cambiar de ruta
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
+  }, [location.pathname]);
+
   const isActive = (path) => location.pathname === path;
 
-  // Componente Link de Escritorio (Ahora usa Link en vez de button)
+  const handleLogout = () => {
+    logout();
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    navigate('/');
+  };
+
   const NavLink = ({ text, to, isHot = false, icon: Icon }) => (
     <Link 
       to={to} 
-      className={`relative group flex items-center gap-2 py-2 transition-colors uppercase tracking-tight text-lg font-black
+      className={`relative group flex items-center gap-2 py-2 transition-colors uppercase tracking-tight text-base font-black whitespace-nowrap
         ${isActive(to) ? 'text-red-600' : 'text-slate-900 hover:text-red-600'}
         ${isHot ? 'text-orange-600 hover:text-orange-700' : ''}
       `}
@@ -64,15 +77,13 @@ export default function Navbar({ carritoCount, onOpenCart }) {
             
             {/* ZONA IZQUIERDA */}
             <div className="flex items-center gap-4">
-                {/* Botón Menú Móvil */}
                 <button 
                     className="lg:hidden text-slate-900 hover:text-red-600 transition-colors p-1" 
                     onClick={() => setIsMobileMenuOpen(true)}
                 >
-                    <Menu size={28} strokeWidth={2} />
+                    <Menu size={28} strokeWidth={1.5} />
                 </button>
 
-                {/* LOGO (PC) - Ahora con Link */}
                 <Link to="/" className="cursor-pointer flex-shrink-0 hidden lg:block">
                     <img 
                         src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769311945/logoactualizado_rkbkby.png" 
@@ -82,7 +93,7 @@ export default function Navbar({ carritoCount, onOpenCart }) {
                 </Link>
             </div>
 
-            {/* ZONA CENTRAL (Logo Móvil) - Ahora con Link */}
+            {/* ZONA CENTRAL (Logo Móvil) */}
             <Link 
                 to="/" 
                 className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
@@ -106,25 +117,33 @@ export default function Navbar({ carritoCount, onOpenCart }) {
               </div>
             </div>
 
-            {/* ZONA DERECHA (Carrito) */}
+            {/* ZONA DERECHA (Carrito + Usuario) */}
             <div className="flex items-center gap-4">
+              
+              {/* Carrito */}
               <button 
                 onClick={onOpenCart}
                 className="group flex items-center gap-3 lg:pl-4 lg:border-l border-slate-200"
               >
                 <div className="relative p-1">
-                  <ShoppingBag size={28} className="text-slate-900 group-hover:text-red-600 transition-colors md:w-8 md:h-8" strokeWidth={1.5} />
+                  <ShoppingBag 
+                    size={28} 
+                    className="text-slate-900 group-hover:text-red-600 transition-colors md:w-8 md:h-8" 
+                    strokeWidth={1.5} 
+                  />
                   {carritoCount > 0 && (
                     <motion.span 
-                      initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      initial={{ scale: 0 }} 
+                      animate={{ scale: 1 }}
                       className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg"
                     >
                       {carritoCount}
                     </motion.span>
                   )}
                 </div>
+
                 <div className="hidden lg:flex flex-col items-start">
-                  <span className="text-lg font-black text-slate-900 group-hover:text-red-600 transition-colors uppercase tracking-tight leading-tight">
+                  <span className="text-base font-black text-slate-900 group-hover:text-red-600 transition-colors uppercase tracking-tight leading-tight">
                     CARRITO
                   </span>
                   <span className="text-xs text-slate-500 font-medium">
@@ -132,6 +151,93 @@ export default function Navbar({ carritoCount, onOpenCart }) {
                   </span>
                 </div>
               </button>
+
+              {/* Menú de Usuario */}
+              {user ? (
+                <div
+                  className="relative hidden lg:block"
+                  onMouseEnter={() => setIsUserMenuOpen(true)}
+                  onMouseLeave={() => setIsUserMenuOpen(false)}
+                >
+                  <button
+                    className="flex items-center gap-2 pl-4 border-l border-slate-200 hover:text-red-600 transition-colors"
+                  >
+                    <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white font-black text-sm">
+                      {user.nombre.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-sm font-bold text-slate-900 hidden md:inline truncate max-w-[100px]">
+                      {user.nombre}
+                    </span>
+                  </button>
+
+                  <AnimatePresence>
+                    {isUserMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute top-full right-0 pt-2 w-56 z-50"
+                      >
+                        <div className="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
+                          
+                          <div className="p-4 border-b border-slate-50 bg-slate-50/50">
+                            <p className="text-sm font-black text-slate-900 truncate">
+                              {user.nombre}
+                            </p>
+                            <p className="text-xs text-slate-500 truncate mt-0.5">
+                              {user.email}
+                            </p>
+                          </div>
+
+                          <div className="p-2 space-y-1">
+                            {isAdmin && (
+                              <Link
+                                to="/admin"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-red-600 rounded-lg transition-colors"
+                                onClick={() => setIsUserMenuOpen(false)}
+                              >
+                                <Settings size={18} />
+                                Control de Inventario
+                              </Link>
+                            )}
+
+                            <button
+                              onClick={handleLogout}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <LogOut size={18} />
+                              Cerrar Sesión
+                            </button>
+                          </div>
+
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="group hidden lg:flex items-center gap-3 pl-4 border-l border-slate-200 transition-colors"
+                >
+                  <div className="relative p-1">
+                    <User 
+                      size={28} 
+                      className="text-slate-900 group-hover:text-blue-600 transition-colors md:w-8 md:h-8" 
+                      strokeWidth={1.5} 
+                    />
+                  </div>
+                  <div className="hidden lg:flex flex-col items-start">
+                    <span className="text-base font-black text-slate-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight leading-tight">
+                      INICIAR
+                    </span>
+                    <span className="text-base font-black text-slate-900 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
+                      SESIÓN
+                    </span>
+                  </div>
+                </Link>
+              )}
+
             </div>
 
           </div>
@@ -179,10 +285,10 @@ export default function Navbar({ carritoCount, onOpenCart }) {
                 <MobileLink to="/envios" text="ENVÍOS" onClick={() => setIsMobileMenuOpen(false)} isActive={isActive('/envios')} icon={Truck} />
               </div>
 
-              <div className="p-6 bg-slate-900 text-white">
+              <div className="p-6 bg-slate-900 text-white space-y-4">
                 <button 
                   onClick={() => {onOpenCart(); setIsMobileMenuOpen(false)}}
-                  className="w-full bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors flex items-center justify-between mb-4"
+                  className="w-full bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
                     <ShoppingBag size={24} className="text-white" />
@@ -198,7 +304,44 @@ export default function Navbar({ carritoCount, onOpenCart }) {
                   )}
                 </button>
                 
-                <div className="text-center">
+                {/* Lógica de usuario móvil */}
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="bg-white/10 rounded-xl p-3 text-sm">
+                      <p className="font-black truncate">{user.nombre}</p>
+                      <p className="text-xs opacity-80 truncate">{user.email}</p>
+                    </div>
+                    
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 rounded-xl p-3 transition-colors font-bold text-sm"
+                      >
+                        <Settings size={18} />
+                        Control de Inventario
+                      </Link>
+                    )}
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 rounded-xl p-3 transition-colors font-bold text-sm"
+                    >
+                      <LogOut size={18} />
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-3 transition-colors font-bold text-sm"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <User size={18} /> Iniciar Sesión
+                  </Link>
+                )}
+
+                <div className="text-center pt-2 border-t border-white/20">
                   <p className="text-sm font-black mb-1">FGSTOREEC</p>
                   <p className="text-xs opacity-80 mb-2">Passion for Scale Models</p>
                   <div className="text-xs opacity-60">
@@ -214,7 +357,6 @@ export default function Navbar({ carritoCount, onOpenCart }) {
   );
 }
 
-// Componente auxiliar móvil actualizado con Link
 const MobileLink = ({ text, to, onClick, isActive, isHot = false, icon: Icon }) => (
   <Link 
     to={to} 
