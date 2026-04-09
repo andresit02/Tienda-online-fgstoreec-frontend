@@ -190,6 +190,16 @@ export default function Navbar({ carritoCount, onOpenCart }) {
                           </div>
 
                           <div className="p-2 space-y-1">
+                            {/* ENLACE MI PERFIL */}
+                            <Link
+                              to="/perfil"
+                              className="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-red-600 rounded-lg transition-colors"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <User size={18} />
+                              Mi Perfil
+                            </Link>
+
                             {isAdmin && (
                               <Link
                                 to="/admin"
@@ -311,6 +321,16 @@ export default function Navbar({ carritoCount, onOpenCart }) {
                       <p className="font-black truncate">{user.nombre}</p>
                       <p className="text-xs opacity-80 truncate">{user.email}</p>
                     </div>
+
+                    {/* ENLACE MI PERFIL MÓVIL */}
+                    <Link
+                      to="/perfil"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 rounded-xl p-3 transition-colors font-bold text-sm"
+                    >
+                      <User size={18} />
+                      Mi Perfil
+                    </Link>
                     
                     {isAdmin && (
                       <Link

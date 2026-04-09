@@ -2,191 +2,114 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
-export default function LoginMejorado() {
+export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'El correo es requerido';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Correo inválido';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` }
+    });
+    if (error) toast.error(error.message);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
-
     setLoading(true);
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        {
-          email: formData.email,
-          password: formData.password,
-        }
-      );
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
 
-      const { user, token } = response.data;
-      login(user, token, rememberMe);
-
-      toast.success(`¡Bienvenido, ${user.nombre}!`);
-
-      // Redirigir según el rol
-      if (user.role === 'admin') {
-        navigate('/admin');
+    if (error) {
+      if (error.message === 'Email not confirmed') {
+        toast.error('Por favor, verifica tu correo electrónico.');
       } else {
-        navigate('/');
+        // Consultamos al backend por qué falló
+        try {
+          const check = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/check-email`, { email: formData.email });
+          if (check.data.exists) {
+            toast.error('Credenciales inválidas. Si tu cuenta fue creada con Google, inicia sesión con Google o crea una contraseña en tu Perfil.', { duration: 6000 });
+          } else {
+            toast.error('Usuario no encontrado. Regístrate primero.');
+          }
+        } catch (err) {
+          toast.error('Credenciales inválidas');
+        }
       }
-    } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Error al iniciar sesión';
-      toast.error(errorMessage);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/sync`, {
+        email: data.user.email,
+        nombre: data.user.user_metadata.nombre || data.user.email.split('@')[0],
+        supabase_id: data.user.id
+      });
+      
+      login(response.data.user, response.data.token);
+      toast.success(`¡Bienvenido, ${response.data.user.nombre}!`);
+      navigate('/');
+    } catch (err) {
+      toast.error('Error al sincronizar perfil con el servidor');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-black text-slate-900 mb-2">Iniciar Sesión</h1>
-          <p className="text-slate-600">Accede a tu cuenta de FGSTOREEC</p>
-        </div>
-
-        {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2">Correo Electrónico</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="tu@email.com"
-                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-lg transition-all focus:outline-none ${
-                    errors.email
-                      ? 'border-red-500 focus:border-red-600 bg-red-50'
-                      : 'border-slate-200 focus:border-red-600 focus:bg-white'
-                  }`}
-                />
-              </div>
-              {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
-            </div>
-
-            {/* Contraseña */}
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2">Contraseña</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Tu contraseña"
-                  className={`w-full pl-12 pr-12 py-3 border-2 rounded-lg transition-all focus:outline-none ${
-                    errors.password
-                      ? 'border-red-500 focus:border-red-600 bg-red-50'
-                      : 'border-slate-200 focus:border-red-600 focus:bg-white'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-              {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500"
-                />
-                <span className="text-sm text-slate-600 font-medium">Recuérdame</span>
-              </label>
-              <Link to="/forgot-password" className="text-sm text-red-600 font-bold hover:text-red-700 transition-colors">
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-6"
-            >
-              {loading ? (
-                <>
-                  <Loader size={20} className="animate-spin" />
-                  Iniciando sesión...
-                </>
-              ) : (
-                'Iniciar Sesión'
-              )}
-            </button>
-          </form>
-
-          {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-slate-600">
-              ¿No tienes cuenta?{' '}
-              <Link to="/registro" className="text-red-600 font-bold hover:text-red-700 transition-colors">
-                Regístrate aquí
-              </Link>
-            </p>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+        <h1 className="text-3xl font-black text-center text-slate-900 mb-6">FG Store</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input type="email" placeholder="Correo electrónico" required className="w-full pl-12 pr-4 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none transition-all"
+              onChange={(e) => setFormData({...formData, email: e.target.value})} />
           </div>
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input type={showPassword ? "text" : "password"} placeholder="Contraseña" required className="w-full pl-12 pr-12 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none transition-all"
+              onChange={(e) => setFormData({...formData, password: e.target.value})} />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+          
+          <div className="text-right">
+            <Link to="/olvide-contrasena" className="text-sm font-bold text-red-600 hover:underline">¿Olvidaste tu contraseña?</Link>
+          </div>
+
+          <button type="submit" disabled={loading} className="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-all flex justify-center items-center">
+            {loading ? <Loader className="animate-spin" size={20} /> : 'Iniciar Sesión'}
+          </button>
+        </form>
+
+        <div className="relative my-8 text-center">
+          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-200"></span></div>
+          <span className="relative px-4 bg-white text-sm text-slate-500 font-medium">O continúa con</span>
         </div>
+
+        <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 border-2 border-slate-200 py-3 rounded-xl font-bold hover:bg-slate-50 transition-all">
+          <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+          Google
+        </button>
+        
+        <p className="mt-6 text-center text-slate-600">
+          ¿No tienes cuenta? <Link to="/registro" className="text-red-600 font-bold hover:underline">Regístrate aquí</Link>
+        </p>
       </div>
     </div>
-  );
+   );
 }

@@ -2,26 +2,27 @@ import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom'; 
 import { Toaster } from 'react-hot-toast'; 
 
-// 1. IMPORTACIONES CRÍTICAS DE AUTENTICACIÓN QUE FALTABAN
-import { AuthProvider } from './context/AuthContext'; // [cite: 9]
-import ProtectedRoute from './components/ProtectedRoute'; // [cite: 10]
+import { AuthProvider } from './context/AuthContext'; 
+import ProtectedRoute from './components/ProtectedRoute'; 
 
 import AdminDashboard from './pages/AdminDashboard';
-import NavbarMejorada from './components/BarraNavegacion'; // (O BarraNavegacionMejorada, según como lo hayas nombrado)
+import NavbarMejorada from './components/BarraNavegacion'; 
 import CartDrawer from './components/CarritoLateral'; 
 import Home from './pages/Inicio';
 import Catalog from './pages/Catalogo';
 import Pruebas from './pages/Pruebas';
 import ProductoDetalle from "./pages/ProductoDetalle";
 import Footer from "./components/Footer";
+import AuthCallback from './pages/AuthCallback';
+import Perfil from './pages/Perfil';
+import Terminos from './pages/Terminos';
+import Privacidad from './pages/Privacidad';
 
-// 2. IMPORTAMOS LAS NUEVAS PANTALLAS DEL PROFESIONAL
-import LoginMejorado
- from './pages/Login'; // [cite: 16]
-import Registro from './pages/Registro'; // [cite: 15]
-import VerificarCorreo from './pages/VerificarCorreo'; // [cite: 17]
-import OlvideContrasena from './pages/OlvidéContraseña'; // [cite: 19]
-import RestablecerContrasena from './pages/RestablecerContraseña'; // [cite: 20]
+import LoginMejorado from './pages/Login'; 
+import Registro from './pages/Registro'; 
+import VerificarCorreo from './pages/VerificarCorreo'; 
+import OlvideContrasena from './pages/OlvideContraseña'; 
+import RestablecerContrasena from './pages/RestablecerContraseña'; 
 
 import { useCarrito } from './hooks/useCarrito';
 import { useProductos } from './hooks/useProductos';
@@ -59,7 +60,6 @@ function App() {
   const destacados = productos.filter(p => p.destacado === true).slice(0, 8); 
 
   return (
-    // 3. ENVOLVEMOS TODO CON AUTHPROVIDER (Esto soluciona tu error de inmediato)
     <AuthProvider>
       <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
         <ScrollToTop />
@@ -79,15 +79,19 @@ function App() {
             <Route path="/hotwheels" element={<Catalog productosIniciales={listaHotWheels} titulo="Hot Wheels" agregarAlCarrito={agregarAlCarrito} />} />
             <Route path="/accesorios" element={<Catalog productosIniciales={listaAccesorios} titulo="Accesorios" subtitulo="Complementos para tu colección" agregarAlCarrito={agregarAlCarrito} esAccesorios={true} />} />
             <Route path="/envios" element={ <Pruebas /> } />
+            <Route path="/terminos" element={ <Terminos /> } />
+            <Route path="/privacidad" element={ <Privacidad /> } />
 
-            {/* --- 4. NUEVAS RUTAS DE AUTENTICACIÓN --- */}
+            {/* --- RUTAS DE AUTENTICACIÓN --- */}
             <Route path="/registro" element={ <Registro /> } /> 
             <Route path="/login" element={ <LoginMejorado /> } />
+            <Route path="/perfil" element={ <Perfil /> } />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/verify-email" element={ <VerificarCorreo /> } />
-            <Route path="/forgot-password" element={ <OlvideContrasena /> } />
-            <Route path="/reset-password" element={ <RestablecerContrasena /> } />
+            <Route path="/olvide-contrasena" element={ <OlvideContrasena /> } />
+            <Route path="/restablecer-contrasena" element={ <RestablecerContrasena /> } />
 
-            {/* --- 5. RUTA DE ADMIN PROTEGIDA --- */}
+            {/* --- RUTA DE ADMIN PROTEGIDA --- */}
             <Route path="/admin" element={ 
               <ProtectedRoute requiredRole="admin">
                 <AdminDashboard />

@@ -128,8 +128,9 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400 font-medium">
             <p className="text-center md:text-left">© 2026 FGSTOREEC. Todos los derechos reservados.</p>
             <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-              <button className="hover:text-white transition-colors whitespace-nowrap">Términos y Condiciones</button>
-              <button className="hover:text-white transition-colors whitespace-nowrap">Política de Privacidad</button>
+              {/* CAMBIAMOS LOS BOTONES POR LINKS REALES */}
+              <Link to="/terminos" onClick={scrollToTop} className="hover:text-white transition-colors whitespace-nowrap">Términos y Condiciones</Link>
+              <Link to="/privacidad" onClick={scrollToTop} className="hover:text-white transition-colors whitespace-nowrap">Política de Privacidad</Link>
             </div>
           </div>
         </div>
