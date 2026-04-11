@@ -36,7 +36,6 @@ Hola FG Store! 👋 Quisiera confirmar este pedido y recibir los datos de pago.`
     window.open(url, '_blank');
   };
 
-
   return (
     <>
       <div 
@@ -82,14 +81,15 @@ Hola FG Store! 👋 Quisiera confirmar este pedido y recibir los datos de pago.`
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 bg-slate-50 rounded-lg px-2 py-1">
-                        <button onClick={() => actualizarCantidad(item.id, -1)} className="text-slate-400 hover:text-slate-900 font-bold px-2">-</button>
+                        {/* AÑADIDO item.cartItemId EN LOS 3 BOTONES */}
+                        <button onClick={() => actualizarCantidad(item.id, -1, item.cartItemId)} className="text-slate-400 hover:text-slate-900 font-bold px-2">-</button>
                         <span className="text-xs font-bold w-4 text-center">{item.cantidad}</span>
-                        <button onClick={() => actualizarCantidad(item.id, 1)} className="text-slate-400 hover:text-slate-900 font-bold px-2">+</button>
+                        <button onClick={() => actualizarCantidad(item.id, 1, item.cartItemId)} className="text-slate-400 hover:text-slate-900 font-bold px-2">+</button>
                       </div>
                       <p className="font-bold text-slate-900 text-sm">${(item.precio * item.cantidad).toFixed(2)}</p>
                     </div>
                   </div>
-                  <button onClick={() => eliminarItem(item.id)} className="text-slate-300 hover:text-red-500 self-start cursor-pointer">
+                  <button onClick={() => eliminarItem(item.id, item.cartItemId)} className="text-slate-300 hover:text-red-500 self-start cursor-pointer">
                     <X size={16} />
                   </button>
                 </div>

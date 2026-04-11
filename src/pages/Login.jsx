@@ -12,6 +12,7 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true); 
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -34,7 +35,6 @@ export default function Login() {
       if (error.message === 'Email not confirmed') {
         toast.error('Por favor, verifica tu correo electrónico.');
       } else {
-        // Consultamos al backend por qué falló
         try {
           const check = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/check-email`, { email: formData.email });
           if (check.data.exists) {
@@ -51,13 +51,14 @@ export default function Login() {
     }
 
     try {
+      // SEGURIDAD: Ahora enviamos el token real de Supabase en los Headers
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/sync`, {
-        email: data.user.email,
-        nombre: data.user.user_metadata.nombre || data.user.email.split('@')[0],
-        supabase_id: data.user.id
+        nombre: data.user.user_metadata.nombre || data.user.email.split('@')[0]
+      }, {
+        headers: { Authorization: `Bearer ${data.session.access_token}` }
       });
       
-      login(response.data.user, response.data.token);
+      login(response.data.user, response.data.token, rememberMe); 
       toast.success(`¡Bienvenido, ${response.data.user.nombre}!`);
       navigate('/');
     } catch (err) {
@@ -75,23 +76,32 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input type="email" placeholder="Correo electrónico" required className="w-full pl-12 pr-4 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none transition-all"
+            <input type="email" name="email" autoComplete="username" placeholder="Correo electrónico" required className="w-full pl-12 pr-4 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none transition-all"
               onChange={(e) => setFormData({...formData, email: e.target.value})} />
           </div>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input type={showPassword ? "text" : "password"} placeholder="Contraseña" required className="w-full pl-12 pr-12 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none transition-all"
+            <input type={showPassword ? "text" : "password"} name="password" autoComplete="current-password" placeholder="Contraseña" required className="w-full pl-12 pr-12 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none transition-all"
               onChange={(e) => setFormData({...formData, password: e.target.value})} />
             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
           
-          <div className="text-right">
+          <div className="flex items-center justify-between mt-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
+              />
+              <span className="text-sm text-slate-600 font-medium">Recordarme</span>
+            </label>
             <Link to="/olvide-contrasena" className="text-sm font-bold text-red-600 hover:underline">¿Olvidaste tu contraseña?</Link>
           </div>
 
-          <button type="submit" disabled={loading} className="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-all flex justify-center items-center">
+          <button type="submit" disabled={loading} className="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-all flex justify-center items-center mt-4">
             {loading ? <Loader className="animate-spin" size={20} /> : 'Iniciar Sesión'}
           </button>
         </form>

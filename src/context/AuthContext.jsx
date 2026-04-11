@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase'; // Importante para cerrar sesión completamente
 
 export const AuthContext = createContext();
 
@@ -9,8 +10,9 @@ export const AuthProvider = ({ children }) => {
 
   // Cargar sesión al montar el componente
   useEffect(() => {
-    const storedToken = localStorage.getItem('fgstore_token');
-    const storedUser = localStorage.getItem('fgstore_user');
+    // Busca en ambos almacenamientos
+    const storedToken = localStorage.getItem('fgstore_token') || sessionStorage.getItem('fgstore_token');
+    const storedUser = localStorage.getItem('fgstore_user') || sessionStorage.getItem('fgstore_user');
 
     if (storedToken && storedUser) {
       setToken(storedToken);
@@ -20,26 +22,23 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (userData, authToken, rememberMe = false) => {
+  const login = (userData, authToken, rememberMe = true) => {
     setUser(userData);
     setToken(authToken);
 
-    if (rememberMe) {
-      localStorage.setItem('fgstore_token', authToken);
-      localStorage.setItem('fgstore_user', JSON.stringify(userData));
-    } else {
-      sessionStorage.setItem('fgstore_token', authToken);
-      sessionStorage.setItem('fgstore_user', JSON.stringify(userData));
-    }
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem('fgstore_token', authToken);
+    storage.setItem('fgstore_user', JSON.stringify(userData));
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('fgstore_token');
     localStorage.removeItem('fgstore_user');
     sessionStorage.removeItem('fgstore_token');
     sessionStorage.removeItem('fgstore_user');
+    await supabase.auth.signOut(); // Cerramos sesión en la bóveda de Supabase también
   };
 
   const isAdmin = user?.role === 'admin';

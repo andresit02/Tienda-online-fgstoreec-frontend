@@ -19,15 +19,14 @@ export default function AuthCallback() {
       }
 
       try {
-        // Sincronizar con tu Backend en Render
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/sync`, {
-          email: session.user.email,
-          nombre: session.user.user_metadata.full_name || session.user.email.split('@')[0],
-          supabase_id: session.user.id
+          nombre: session.user.user_metadata.full_name || session.user.email.split('@')[0]
+        }, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
         });
 
         login(response.data.user, response.data.token);
-        navigate('/'); // Redirigir al inicio tras éxito
+        navigate('/'); 
       } catch (err) {
         console.error("Error de sincronización:", err);
         navigate('/login');

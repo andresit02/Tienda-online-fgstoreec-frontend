@@ -11,7 +11,7 @@ export default function Registro() {
   const [formData, setFormData] = useState({ nombre: '', email: '', password: '', confirmPassword: '' });
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false); // Nuevo estado para el botón de reenviar
+  const [resendLoading, setResendLoading] = useState(false); 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
@@ -32,7 +32,6 @@ export default function Registro() {
 
     setLoading(true);
     try {
-      // 1. VERIFICAMOS SI EL CORREO YA EXISTE EN EL BACKEND
       const check = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/check-email`, { email: formData.email });
       if (check.data.exists) {
         toast.error('Este correo ya está registrado. Inicia sesión.');
@@ -40,7 +39,6 @@ export default function Registro() {
         return;
       }
 
-      // 2. REGISTRAMOS EN SUPABASE
       const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -52,7 +50,6 @@ export default function Registro() {
       toast.success('Código enviado a tu correo');
       setPaso(2);
     } catch (error) {
-      // Si el error es que el usuario ya existe pero no verificó su correo, lo dejamos pasar al paso 2
       if (error.message.includes('already registered')) {
          toast.success('Ya habías intentado registrarte. Revisa tu correo o reenvía el código.');
          setPaso(2);
@@ -63,7 +60,6 @@ export default function Registro() {
     setLoading(false);
   };
 
-  // NUEVA FUNCIÓN: REENVIAR CÓDIGO
   const handleReenviarCodigo = async () => {
     setResendLoading(true);
     const { error } = await supabase.auth.resend({
@@ -96,13 +92,14 @@ export default function Registro() {
     }
 
     try {
+      // SEGURIDAD: Usamos el access_token devuelto al verificar
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/sync`, {
-        email: data.user.email,
-        nombre: data.user.user_metadata.nombre || formData.nombre,
-        supabase_id: data.user.id
+        nombre: data.user?.user_metadata?.nombre || formData.nombre
+      }, {
+        headers: { Authorization: `Bearer ${data.session.access_token}` }
       });
       
-      login(response.data.user, response.data.token);
+      login(response.data.user, response.data.token, true);
       toast.success('¡Cuenta creada con éxito!');
       navigate('/');
     } catch (err) {
@@ -122,15 +119,14 @@ export default function Registro() {
             <form onSubmit={handleRegistro} className="space-y-4">
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                {/* AÑADIMOS value={formData.nombre} PARA QUE NO SE BORRE */}
-                <input type="text" placeholder="Nombre completo" required 
+                <input type="text" name="nombre" autoComplete="name" placeholder="Nombre completo" required 
                   className="w-full pl-12 pr-4 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none"
                   value={formData.nombre}
                   onChange={(e) => setFormData({...formData, nombre: e.target.value})} />
               </div>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <input type="email" placeholder="Correo electrónico" required 
+                <input type="email" name="email" autoComplete="username" placeholder="Correo electrónico" required 
                   className="w-full pl-12 pr-4 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})} />
@@ -138,7 +134,7 @@ export default function Registro() {
               
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <input type={showPassword ? "text" : "password"} placeholder="Contraseña (mín. 6 caracteres)" required 
+                <input type={showPassword ? "text" : "password"} name="password" autoComplete="new-password" placeholder="Contraseña (mín. 6 caracteres)" required 
                   className="w-full pl-12 pr-12 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})} />
@@ -149,7 +145,7 @@ export default function Registro() {
 
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <input type={showConfirmPassword ? "text" : "password"} placeholder="Confirmar contraseña" required 
+                <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" autoComplete="new-password" placeholder="Confirmar contraseña" required 
                   className="w-full pl-12 pr-12 py-3 border-2 border-slate-100 rounded-xl focus:border-red-500 outline-none"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} />
@@ -186,7 +182,6 @@ export default function Registro() {
                 {loading ? <Loader className="animate-spin" size={20} /> : 'Verificar Código'}
               </button>
               
-              {/* BOTONES DE ACCIÓN SECUNDARIA */}
               <div className="flex flex-col gap-3 mt-6 pt-4 border-t border-slate-100">
                 <button type="button" onClick={handleReenviarCodigo} disabled={resendLoading} className="w-full text-slate-600 text-sm font-bold flex justify-center items-center gap-2 hover:text-slate-900 transition-colors">
                   {resendLoading ? <Loader className="animate-spin" size={16} /> : <RefreshCw size={16} />}
