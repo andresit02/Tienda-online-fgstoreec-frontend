@@ -1,7 +1,7 @@
 import React from "react";
 import { 
   ArrowRight, ShoppingBag, Truck, CheckCircle, 
-  Package, CreditCard, ExternalLink
+  Package, CreditCard, ExternalLink, MapPin, Clock, Navigation
 } from "lucide-react";
 // 1. IMPORTAR HOOK DE NAVEGACIÓN
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,46 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
         }
         .logo-pulse {
           animation: logo-pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes store-bar-fade-in {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes store-bar-slide-left {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes store-bar-slide-right {
+          from { opacity: 0; transform: translateX(20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes store-bar-pulse-dot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .store-bar-container {
+          animation: store-bar-fade-in 0.6s ease-out both;
+        }
+        .store-bar-title {
+          animation: store-bar-slide-left 0.7s ease-out 0.1s both;
+        }
+        .store-bar-details {
+          animation: store-bar-slide-left 0.7s ease-out 0.2s both;
+        }
+        .store-bar-btn {
+          animation: store-bar-slide-right 0.7s ease-out 0.3s both;
+          transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .store-bar-btn:hover {
+          transform: translateY(-2px) scale(1.04);
+          box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
+        }
+        .store-bar-btn:active {
+          transform: translateY(0) scale(0.98);
+        }
+        .store-live-dot {
+          animation: store-bar-pulse-dot 1.8s ease-in-out infinite;
         }
       `}</style>
 

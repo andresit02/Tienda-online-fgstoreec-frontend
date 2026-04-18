@@ -22,6 +22,9 @@ import Registro from './pages/Registro';
 import OlvideContrasena from './pages/OlvideContraseña'; 
 import RestablecerContrasena from './pages/RestablecerContraseña'; 
 
+import BottomNav from './components/BottomNav';
+import ListaDeseos from './pages/ListaDeseos';
+
 import { useCarrito } from './hooks/useCarrito';
 import { useProductos } from './hooks/useProductos';
 
@@ -58,7 +61,8 @@ function App() {
   const destacados = productos.filter(p => p.destacado === true).slice(0, 8); 
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
+    // CAMBIO IMPORTANTE: pb-16 en móviles para que el contenido no quede oculto detrás de la nueva barra
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col pb-16 md:pb-0">
       <ScrollToTop />
       
       <Toaster position="top-center" reverseOrder={false} />
@@ -78,6 +82,9 @@ function App() {
           <Route path="/envios" element={ <Pruebas /> } />
           <Route path="/terminos" element={ <Terminos /> } />
           <Route path="/privacidad" element={ <Privacidad /> } />
+          
+          {/* NUEVA RUTA DE LISTA DE DESEOS */}
+          <Route path="/deseos" element={ <ListaDeseos agregarAlCarrito={agregarAlCarrito} /> } />
 
           {/* --- RUTAS DE AUTENTICACIÓN --- */}
           <Route path="/registro" element={ <Registro /> } /> 
@@ -98,6 +105,12 @@ function App() {
         </Routes>
       </main>
 
+      {/* NUEVA BARRA INFERIOR (Solo visible en móviles) */}
+      <BottomNav 
+        carritoCount={carrito.reduce((acc, item) => acc + item.cantidad, 0)} 
+        onOpenCart={() => setIsCarritoAbierto(true)} 
+      />
+
       <CartDrawer
         abierto={isCarritoAbierto}
         cerrar={() => setIsCarritoAbierto(false)}
@@ -113,5 +126,3 @@ function App() {
 }
 
 export default App;
-
-

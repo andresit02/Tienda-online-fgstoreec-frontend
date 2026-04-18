@@ -24,12 +24,6 @@ const Pruebas = () => {
       
       {/* BOTÓN VOLVER (NUEVO) */}
       <div className="max-w-7xl mx-auto px-6 pt-8">
-        <Link 
-            to="/" 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-900 font-bold transition-colors shadow-sm"
-        >
-            <ArrowLeft size={18} /> Volver al Inicio
-        </Link>
       </div>
 
       {/* HEADER DE LA SECCIÓN */}

@@ -47,16 +47,18 @@ export default function Perfil() {
       <div className="max-w-6xl mx-auto">
         
         {/* ENCABEZADO */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8 text-center md:text-left">
           <h1 className="text-3xl font-black text-slate-900">Mi Cuenta</h1>
           <p className="text-slate-500 mt-1">Gestiona tu información, pedidos y seguridad.</p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           
-          {/* MENÚ LATERAL (SIDEBAR) */}
+          {/* MENÚ DE NAVEGACIÓN */}
           <div className="w-full md:w-64 shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-row md:flex-col overflow-x-auto md:overflow-visible">
+            
+            {/* VISTA MÓVIL: Grid de Tarjetas (Solo visible en pantallas pequeñas) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:hidden mb-2">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -64,7 +66,30 @@ export default function Perfil() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`flex items-center gap-3 px-6 py-4 text-sm font-bold transition-colors whitespace-nowrap md:whitespace-normal text-left
+                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all
+                      ${isActive 
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-md' 
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                      }
+                    `}
+                  >
+                    <Icon size={24} className={isActive ? 'text-red-500' : 'text-slate-400'} />
+                    <span className="text-[11px] font-bold text-center leading-tight">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* VISTA DESKTOP: Menú Lateral Original (Solo visible en md o superior) */}
+            <div className="hidden md:flex bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-col">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`flex items-center gap-3 px-6 py-4 text-sm font-bold transition-colors text-left
                       ${isActive 
                         ? 'bg-slate-900 text-white border-l-4 border-red-500' 
                         : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-l-4 border-transparent'
@@ -77,6 +102,7 @@ export default function Perfil() {
                 );
               })}
             </div>
+            
           </div>
 
           {/* ÁREA DE CONTENIDO */}
@@ -112,7 +138,7 @@ export default function Perfil() {
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mb-2">Función en desarrollo</h2>
                 <p className="text-slate-500 max-w-md mx-auto">
-                  Estamos trabajando duro para traer esta característica muy pronto. 
+                  Estamos trabajando para traer esta característica muy pronto. 
                   Podrás gestionar tus {activeTab === 'pedidos' ? 'compras y rastrear envíos' : activeTab === 'direcciones' ? 'direcciones de entrega' : 'métodos de pago'} directamente desde aquí.
                 </p>
               </div>

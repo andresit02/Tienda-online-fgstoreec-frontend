@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// TU URL REAL DE RENDER
-const API_URL = 'https://tienda-online-fgstoreec-backend.onrender.com/api/productos';
+// SOLUCIÓN: Usamos la variable de entorno
+const API_URL = `${import.meta.env.VITE_API_URL}/api/productos`;
 
 export const useProductos = () => {
   const [productos, setProductos] = useState([]);
@@ -12,7 +12,7 @@ export const useProductos = () => {
     const fetchProductos = async () => {
       try {
         const response = await axios.get(API_URL);
-        setProductos(response.data); // Guardamos la lista completa
+        setProductos(response.data); 
         setLoading(false);
       } catch (error) {
         console.error("Error cargando productos:", error);

@@ -1,24 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ShoppingCart, X, MessageCircle, Bike, Check, Motorbike } from 'lucide-react';
 import {WhatsappIcon} from './SocialMediaIcons';
 
 const CarritoLateral = ({ abierto, cerrar, carrito, total, eliminarItem, actualizarCantidad }) => {
-  
-const finalizarCompraWhatsApp = () => {
+
+  // ESTADO NUEVO: Para el gesto de swipe right
+  const [touchStartX, setTouchStartX] = useState(null);
+
+  const finalizarCompraWhatsApp = () => {
     // 1. Generar ID Único (Vital para que n8n sepa que es una venta real)
     const orderId = `WEB-${Date.now().toString().slice(-6)}`;
     const numeroTelefono = "593958866618"; 
 
     // 2. Construir lista de productos
-    // NOTA: Cambié "▪️" por "📦" porque tu código en n8n busca la cajita para extraer los productos.
     const productosTexto = carrito.map(item => {
-      // Tu lógica original: Mostrar Serie para HotWheels o Marca para el resto
       const detalle = item.categoria === 'Hot Wheels' ? item.serie : item.marca;
       const nombreFinal = detalle ? `${item.nombre} (${detalle})` : item.nombre;
       
-      // Formato exacto: 📦 Cantidadx Nombre - $Precio
       return `📦 ${item.cantidad}x ${nombreFinal} - $${(item.precio * item.cantidad).toFixed(2)}`;
-    }).join('\n'); // Unimos con saltos de línea reales
+    }).join('\n');
 
     // 3. Armar el mensaje con el formato "Blindado" para n8n
     const mensaje = `🆔 PEDIDO WEB: #${orderId}
@@ -29,11 +29,28 @@ ${productosTexto}
 
 Hola FG Store! 👋 Quisiera confirmar este pedido y recibir los datos de pago.`;
 
-    // 4. Enviar
-    // Usamos encodeURIComponent para manejar emojis y saltos de línea automáticamente sin usar %0A manuales
     const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
-    
     window.open(url, '_blank');
+  };
+
+  // --- LÓGICA DE SWIPE PARA EL CARRITO (Derecha) ---
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!touchStartX) return;
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - touchStartX; // Positivo si desliza a la derecha
+
+    if (diff > 50) {
+      cerrar();
+      setTouchStartX(null);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStartX(null);
   };
 
   return (
@@ -43,14 +60,21 @@ Hola FG Store! 👋 Quisiera confirmar este pedido y recibir los datos de pago.`
         onClick={cerrar} 
       />
       
-      <div className={`fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ${abierto ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div 
+        className={`fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ${abierto ? 'translate-x-0' : 'translate-x-full'}`}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="h-full flex flex-col">
           <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
             <h2 className="text-lg font-bold text-slate-900 flex items-center justify-center gap-2 text-center">
               <ShoppingCart className="w-5 h-5 text-red-600" /> Tu Pedido
             </h2>
-            <button onClick={cerrar} className="p-2 hover:bg-slate-200 rounded-full transition-colors cursor-pointer">
+            {/* MEJORA: Botón con la etiqueta "Seguir comprando" */}
+            <button onClick={cerrar} className="p-1 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer flex flex-col items-center justify-center gap-0.5">
               <X className="w-5 h-5 text-slate-500" />
+              <span className="text-[9px] font-black tracking-wider uppercase text-slate-500 whitespace-nowrap">Seguir comprando</span>
             </button>
           </div>
 
@@ -63,7 +87,6 @@ Hola FG Store! 👋 Quisiera confirmar este pedido y recibir los datos de pago.`
             ) : (
               carrito.map(item => (
                 <div key={`${item.categoria}-${item.id}`} className="flex gap-4 p-3 rounded-xl border border-slate-100 bg-white shadow-sm">
-                  {/* CORRECCIÓN DE IMAGEN AQUÍ ABAJO */}
                   <div className="w-20 h-20 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
                     <img 
                         src={item.imagenes?.principal || "/img/placeholder.png"} 
@@ -74,14 +97,12 @@ Hola FG Store! 👋 Quisiera confirmar este pedido y recibir los datos de pago.`
                   
                   <div className="flex-1">
                     <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{item.nombre}</h4>
-                    {/* Ajustamos para mostrar la 'marca' (ej: Yamaha) o 'serie' si es Hot Wheels */}
                     <p className="text-xs text-slate-500 mb-2">
                         {item.categoria === 'Hot Wheels' ? item.serie : item.marca}
                     </p>
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 bg-slate-50 rounded-lg px-2 py-1">
-                        {/* AÑADIDO item.cartItemId EN LOS 3 BOTONES */}
                         <button onClick={() => actualizarCantidad(item.id, -1, item.cartItemId)} className="text-slate-400 hover:text-slate-900 font-bold px-2">-</button>
                         <span className="text-xs font-bold w-4 text-center">{item.cantidad}</span>
                         <button onClick={() => actualizarCantidad(item.id, 1, item.cartItemId)} className="text-slate-400 hover:text-slate-900 font-bold px-2">+</button>

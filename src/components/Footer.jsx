@@ -1,15 +1,18 @@
 import React from "react";
 import { Facebook, Instagram, Phone, Mail, MapPin, ArrowRight } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Footer() {
   
+  // 1. LEER LA RUTA ACTUAL
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
   // SOLUCIÓN AL PARPADEO: Salto instantáneo en lugar de 'smooth'
   const scrollToTop = () => {
     window.scrollTo(0, 0); 
   };
 
-  // Componente unificado para TODOS los enlaces
   const FooterLink = ({ text, to }) => (
     <Link 
       to={to}
@@ -24,7 +27,8 @@ export default function Footer() {
   );
 
   return (
-    <footer className="bg-[#0f172a] text-slate-300 border-t border-slate-800 font-sans">
+    // 2. MEJORA: Ocultar en móvil si NO es el inicio (pero mantener en Desktop)
+    <footer className={`bg-[#0f172a] text-slate-300 border-t border-slate-800 font-sans ${isHomePage ? 'block' : 'hidden md:block'}`}>
       
       {/* SECCIÓN PRINCIPAL */}
       <div className="max-w-6xl mx-auto px-6 py-16">
@@ -128,7 +132,6 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400 font-medium">
             <p className="text-center md:text-left">© 2026 FGSTOREEC. Todos los derechos reservados.</p>
             <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-              {/* CAMBIAMOS LOS BOTONES POR LINKS REALES */}
               <Link to="/terminos" onClick={scrollToTop} className="hover:text-white transition-colors whitespace-nowrap">Términos y Condiciones</Link>
               <Link to="/privacidad" onClick={scrollToTop} className="hover:text-white transition-colors whitespace-nowrap">Política de Privacidad</Link>
             </div>

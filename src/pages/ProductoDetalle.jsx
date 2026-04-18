@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Check } from "lucide-react";
-// 1. IMPORTAR useLocation TAMBIÉN
+import { ArrowLeft, Check, Heart } from "lucide-react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { crearSlug } from "../helpers/slug";
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+import { useFavoritos } from '../hooks/useFavoritos'; // NUEVO HOOK
 
 function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
   const { categoria, slug } = useParams(); 
   const navigate = useNavigate();
-  const location = useLocation(); // <--- Para leer el estado
+  const location = useLocation(); 
+  const { user } = useAuth();
+  const { favoritosIds, toggleFavorito } = useFavoritos(); // CONECTADO A LA BD
   
   const [producto, setProducto] = useState(null);
   const [imagenActiva, setImagenActiva] = useState(null);
 
+  const handleFavoritoClick = () => {
+    if (!user) {
+      toast.error('Inicia sesión para guardar favoritos');
+      navigate('/login');
+      return;
+    }
+    toggleFavorito(producto);
+  };
+
   useEffect(() => {
     if (todosLosProductos && todosLosProductos.length > 0) {
-      
-      // NUEVA LÓGICA DE BÚSQUEDA ROBUSTA
       const encontrado = todosLosProductos.find(p => {
-        // Construimos el slug único para este producto de la lista: "nombre-id"
         const slugDelProducto = `${crearSlug(p.nombre)}-${p.id}`;
-        
-        // Lo comparamos con el slug que viene en la URL
         return slugDelProducto === slug;
       });
 
@@ -31,14 +39,10 @@ function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
     }
   }, [slug, todosLosProductos]);
 
-  // --- LÓGICA MAESTRA DEL BOTÓN VOLVER ---
   const handleVolver = () => {
-    // Si existe "fromInternal", significa que el usuario estaba navegando en nuestra web.
-    // Usamos -1 para volver al historial exacto (misma posición de scroll).
     if (location.state?.fromInternal) {
       navigate(-1);
     } else {
-      // Si NO existe (entró directo por link), lo mandamos a la portada de la categoría.
       navigate(`/${categoria}`);
     }
   };
@@ -53,6 +57,7 @@ function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
   }
 
   const tieneStock = producto.stock > 0;
+  const isFav = favoritosIds.includes(producto.id);
   const listaImagenes = producto.imagenes?.galeria 
     ? [producto.imagenes.principal, ...producto.imagenes.galeria] 
     : [producto.imagenes?.principal];
@@ -72,7 +77,6 @@ function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 bg-white rounded-3xl border border-slate-100 shadow-xl p-6 lg:p-8">
         
-        {/* GALERÍA */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="relative group w-full aspect-[4/3] bg-white rounded-2xl border border-slate-100 overflow-hidden flex items-center justify-center">
             <img src={imagenActiva} alt={producto.nombre} className={`w-[90%] h-[90%] object-contain transition-transform duration-500 group-hover:scale-125`} />
@@ -91,7 +95,6 @@ function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
           )}
         </div>
 
-        {/* INFO */}
         <div className="lg:col-span-5 flex flex-col">
           <h1 className="text-4xl font-extrabold text-slate-900 leading-tight uppercase">{producto.nombre}</h1>
           <p className="text-2xl font-bold text-slate-900 mt-3 border-b border-slate-100 pb-4">${producto.precio.toFixed(2)}</p>
@@ -115,15 +118,35 @@ function ProductoDetalle({ agregarAlCarrito, todosLosProductos }) {
 
             {!esHotWheels && !esAccesorio && (
               <>
-                {producto.materiales && <p className="mt-4"><strong>Materiales:</strong> {producto.materiales}</p>}
-                {producto.medidasCaja && <p><strong>Medidas de la caja (cm):</strong> {producto.medidasCaja?.texto || "No especificado"}</p>}
+                <p className="mt-4">
+                  <strong>Materiales:</strong> {producto.materiales || "No especificado"}
+                </p>
+                <p>
+                  <strong>Medidas de la caja (cm):</strong> {producto.medidasCaja?.texto || "No especificado"}
+                </p>
               </>
             )}
           </div>
 
-          <button onClick={() => tieneStock && agregarAlCarrito(producto)} disabled={!tieneStock} className={`mt-10 w-full py-4 rounded-xl font-bold transition shadow-lg ${tieneStock ? 'bg-slate-900 text-white hover:bg-red-600 hover:shadow-red-600/30' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
-            {tieneStock ? "Agregar al carrito" : "Agotado"}
-          </button>
+          <div className="mt-10 flex gap-3 md:gap-4">
+            <button 
+              onClick={() => tieneStock && agregarAlCarrito(producto)} 
+              disabled={!tieneStock} 
+              className={`flex-1 py-3.5 md:py-4 rounded-xl font-bold transition shadow-lg ${tieneStock ? 'bg-slate-900 text-white hover:bg-red-600 hover:shadow-red-600/30' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+            >
+              {tieneStock ? "Agregar al carrito" : "Agotado"}
+            </button>
+            
+            <button 
+              onClick={handleFavoritoClick} 
+              className={`w-14 md:w-16 flex-shrink-0 rounded-xl border-2 transition flex items-center justify-center cursor-pointer
+                ${isFav ? 'border-red-100 bg-red-50 text-red-500' : 'border-slate-200 bg-white text-slate-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50'}
+              `}
+              title="Agregar a favoritos"
+            >
+              <Heart size={24} fill={isFav ? "currentColor" : "none"} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

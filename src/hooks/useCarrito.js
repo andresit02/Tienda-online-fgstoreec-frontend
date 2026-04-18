@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 export const useCarrito = () => {
-  // 1. INICIALIZAR LEYENDO LOCALSTORAGE AL INSTANTE (Solución al bug del refresh)
   const [carrito, setCarrito] = useState(() => {
     try {
       const guardado = localStorage.getItem('fgstore_carrito');
@@ -17,22 +16,8 @@ export const useCarrito = () => {
   
   const [isCarritoAbierto, setIsCarritoAbierto] = useState(false);
   const { user, token } = useAuth(); 
+  const wasLoggedIn = useRef(false); // NUEVO: Rastrea si el usuario estaba logueado
 
-  // 2. CARGAMOS EL CARRITO DE LA BD SI INICIA SESIÓN
-  useEffect(() => {
-    if (user && token) {
-      fetchCartFromAPI();
-    }
-  }, [user, token]);
-
-  // 3. GUARDAMOS EN LOCALSTORAGE CADA VEZ QUE CAMBIE EL CARRITO (Solo si es invitado)
-  useEffect(() => {
-    if (!user) {
-      localStorage.setItem('fgstore_carrito', JSON.stringify(carrito));
-    }
-  }, [carrito, user]);
-
-  // Función para leer de la base de datos
   const fetchCartFromAPI = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, {
@@ -41,7 +26,7 @@ export const useCarrito = () => {
       const formattedCart = res.data.items.map(item => ({
         ...item.product,
         cantidad: item.cantidad,
-        cartItemId: item.id // ID único de la fila en la BD
+        cartItemId: item.id 
       }));
       setCarrito(formattedCart);
     } catch (error) {
@@ -49,7 +34,25 @@ export const useCarrito = () => {
     }
   };
 
-  // 4. AGREGAR AL CARRITO
+  useEffect(() => {
+    if (user && token) {
+      fetchCartFromAPI();
+      wasLoggedIn.current = true; // Marcamos que entró un usuario registrado
+    } else if (wasLoggedIn.current) {
+      // SOLUCIÓN AL BUG: Solo limpia si había un usuario logueado y acaba de salir
+      setCarrito([]);
+      localStorage.removeItem('fgstore_carrito');
+      wasLoggedIn.current = false;
+    }
+    // Si no entra a ninguna condición, es un invitado, el carrito se mantiene intacto.
+  }, [user, token]);
+
+  useEffect(() => {
+    if (!user) {
+      localStorage.setItem('fgstore_carrito', JSON.stringify(carrito));
+    }
+  }, [carrito, user]);
+
   const agregarAlCarrito = async (producto) => {
     if (user && token) {
       try {
@@ -60,13 +63,12 @@ export const useCarrito = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success(`${producto.nombre} agregado al carrito`);
-        fetchCartFromAPI(); // Recargamos para obtener el cartItemId
+        fetchCartFromAPI(); 
         setIsCarritoAbierto(true);
       } catch (error) {
         toast.error('Error al guardar en tu cuenta');
       }
     } else {
-      // Lógica para invitados
       setCarrito(prev => {
         const existe = prev.find(item => item.id === producto.id);
         if (existe) {
@@ -79,7 +81,6 @@ export const useCarrito = () => {
     }
   };
 
-  // 5. ELIMINAR DEL CARRITO
   const eliminarDelCarrito = async (id, cartItemId) => {
     if (user && token && cartItemId) {
       try {
@@ -97,7 +98,6 @@ export const useCarrito = () => {
     }
   };
 
-  // 6. ACTUALIZAR CANTIDAD (+ o -)
   const actualizarCantidad = async (id, delta, cartItemId) => {
     const item = carrito.find(i => i.id === id);
     if (!item) return;
@@ -107,7 +107,6 @@ export const useCarrito = () => {
 
     if (user && token && cartItemId) {
       try {
-        // Optimistic UI: actualiza visualmente al instante
         setCarrito(prev => prev.map(i => i.id === id ? { ...i, cantidad: nuevaCantidad } : i));
         
         await axios.put(`${import.meta.env.VITE_API_URL}/api/cart/update/${cartItemId}`, {
@@ -117,7 +116,7 @@ export const useCarrito = () => {
         });
       } catch (error) {
         toast.error('Error de conexión');
-        fetchCartFromAPI(); // Revierte en caso de fallo
+        fetchCartFromAPI(); 
       }
     } else {
       setCarrito(prev => prev.map(i => i.id === id ? { ...i, cantidad: nuevaCantidad } : i));
@@ -126,13 +125,5 @@ export const useCarrito = () => {
 
   const totalCarrito = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
-  return {
-    carrito,
-    isCarritoAbierto,
-    setIsCarritoAbierto,
-    agregarAlCarrito,
-    eliminarDelCarrito,
-    actualizarCantidad,
-    totalCarrito
-  };
+  return { carrito, isCarritoAbierto, setIsCarritoAbierto, agregarAlCarrito, eliminarDelCarrito, actualizarCantidad, totalCarrito };
 };
