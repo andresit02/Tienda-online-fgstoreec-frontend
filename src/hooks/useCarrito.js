@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -15,9 +15,10 @@ export const useCarrito = () => {
   });
   
   const [isCarritoAbierto, setIsCarritoAbierto] = useState(false);
-  
-  // AÑADIDO: Extraemos la función logout
   const { user, token, logout } = useAuth(); 
+  
+  // SOLUCIÓN: Rastreador silencioso para diferenciar un refresh de un logout real
+  const wasLoggedIn = useRef(false);
 
   const fetchCartFromAPI = async () => {
     try {
@@ -31,7 +32,6 @@ export const useCarrito = () => {
       }));
       setCarrito(formattedCart);
     } catch (error) {
-      // LÓGICA DE CADUCIDAD DE SESIÓN
       if (error.response?.status === 401 || error.response?.status === 403) {
         toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
         logout();
@@ -44,10 +44,14 @@ export const useCarrito = () => {
   useEffect(() => {
     if (user && token) {
       fetchCartFromAPI();
-    } else {
+      wasLoggedIn.current = true; // El usuario está activo
+    } else if (wasLoggedIn.current) {
+      // Solo limpiamos si el usuario ESTABA logueado y ahora no lo está (Logout explícito)
       setCarrito([]);
       localStorage.removeItem('fgstore_carrito');
+      wasLoggedIn.current = false;
     }
+    // Si no entra a ninguna, es un INVITADO haciendo refresh. El carrito no se toca.
   }, [user, token]);
 
   useEffect(() => {
@@ -69,7 +73,6 @@ export const useCarrito = () => {
         fetchCartFromAPI(); 
         setIsCarritoAbierto(true);
       } catch (error) {
-        // LÓGICA DE CADUCIDAD DE SESIÓN
         if (error.response?.status === 401 || error.response?.status === 403) {
           toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
           logout();
@@ -99,7 +102,6 @@ export const useCarrito = () => {
         fetchCartFromAPI();
         toast.success('Producto eliminado');
       } catch (error) {
-        // LÓGICA DE CADUCIDAD DE SESIÓN
         if (error.response?.status === 401 || error.response?.status === 403) {
           toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
           logout();
@@ -130,7 +132,6 @@ export const useCarrito = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
       } catch (error) {
-        // LÓGICA DE CADUCIDAD DE SESIÓN
         if (error.response?.status === 401 || error.response?.status === 403) {
           toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
           logout();

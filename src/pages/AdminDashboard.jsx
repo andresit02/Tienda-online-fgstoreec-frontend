@@ -134,7 +134,6 @@ export default function AdminDashboard() {
       if (formData.escala) datosParaEnviar.escala = formData.escala;
       if (formData.serie) datosParaEnviar.serie = formData.serie;
     } else if (formData.categoria === 'Autos') {
-      // MEJORA: Añadidos Fabricante, Materiales y MedidasCaja para Autos
       if (formData.marca) datosParaEnviar.marca = formData.marca;
       if (formData.fabricante) datosParaEnviar.fabricante = formData.fabricante;
       if (formData.escala) datosParaEnviar.escala = formData.escala;
@@ -171,7 +170,7 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-100 p-2 md:p-8 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-100 p-2 md:p-8 font-sans text-slate-900 pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="text-center md:text-left">
@@ -268,7 +267,6 @@ export default function AdminDashboard() {
                  </>
                )}
 
-               {/* MEJORA: CAMPOS AÑADIDOS PARA AUTOS */}
                {formData.categoria === 'Autos' && (
                  <>
                    <div><label className="block text-sm font-bold mb-1">Fabricante</label>
@@ -389,7 +387,31 @@ export default function AdminDashboard() {
         )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <table className="w-full text-left min-w-full">
+          
+          {/* NUEVO: VISTA MÓVIL (Tarjetas en lugar de tabla para evitar que se aplaste) */}
+          <div className="block md:hidden divide-y divide-slate-100">
+            {productosMostrados.map((prod) => (
+              <div key={prod.id} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                <img src={prod.imagenes?.principal} className="w-16 h-16 object-contain bg-white rounded-xl border border-slate-100 flex-shrink-0" alt="" />
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-sm text-slate-900 line-clamp-2 mb-1">{prod.nombre}</h3>
+                  <div className="flex items-center gap-3 text-xs font-medium text-slate-500">
+                    <span className="text-slate-900 font-black">${prod.precio}</span>
+                    <span>Stock: {prod.stock}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2 flex-shrink-0">
+                  <button onClick={() => abrirEditar(prod)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"><Edit size={16} /></button>
+                  <button onClick={() => handleEliminar(prod.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"><Trash2 size={16} /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* VISTA DESKTOP (La tabla original que se ve bien en pantallas grandes) */}
+          <table className="hidden md:table w-full text-left min-w-full">
             <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-bold">
               <tr><th className="px-4 py-4">Producto</th><th className="px-4 py-4">Precio</th><th className="px-4 py-4">Stock</th><th className="px-4 py-4 text-center">Acciones</th></tr>
             </thead>
@@ -397,7 +419,7 @@ export default function AdminDashboard() {
               {productosMostrados.map((prod) => (
                 <tr key={prod.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-4 flex items-center gap-3">
-                    <img src={prod.imagenes?.principal} className="w-10 h-10 object-contain bg-white rounded border" alt="" />
+                    <img src={prod.imagenes?.principal} className="w-10 h-10 object-contain bg-white rounded border flex-shrink-0" alt="" />
                     <span className="font-bold line-clamp-1">{prod.nombre}</span>
                   </td>
                   <td className="px-4 py-4 font-bold">${prod.precio}</td>
