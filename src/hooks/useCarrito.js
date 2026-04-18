@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -15,8 +15,9 @@ export const useCarrito = () => {
   });
   
   const [isCarritoAbierto, setIsCarritoAbierto] = useState(false);
-  const { user, token } = useAuth(); 
-  const wasLoggedIn = useRef(false); // NUEVO: Rastrea si el usuario estaba logueado
+  
+  // AÑADIDO: Extraemos la función logout
+  const { user, token, logout } = useAuth(); 
 
   const fetchCartFromAPI = async () => {
     try {
@@ -26,25 +27,27 @@ export const useCarrito = () => {
       const formattedCart = res.data.items.map(item => ({
         ...item.product,
         cantidad: item.cantidad,
-        cartItemId: item.id 
+        cartItemId: item.id
       }));
       setCarrito(formattedCart);
     } catch (error) {
-      console.error('Error cargando carrito de la DB:', error);
+      // LÓGICA DE CADUCIDAD DE SESIÓN
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
+        logout();
+      } else {
+        console.error('Error cargando carrito de la DB:', error);
+      }
     }
   };
 
   useEffect(() => {
     if (user && token) {
       fetchCartFromAPI();
-      wasLoggedIn.current = true; // Marcamos que entró un usuario registrado
-    } else if (wasLoggedIn.current) {
-      // SOLUCIÓN AL BUG: Solo limpia si había un usuario logueado y acaba de salir
+    } else {
       setCarrito([]);
       localStorage.removeItem('fgstore_carrito');
-      wasLoggedIn.current = false;
     }
-    // Si no entra a ninguna condición, es un invitado, el carrito se mantiene intacto.
   }, [user, token]);
 
   useEffect(() => {
@@ -66,7 +69,13 @@ export const useCarrito = () => {
         fetchCartFromAPI(); 
         setIsCarritoAbierto(true);
       } catch (error) {
-        toast.error('Error al guardar en tu cuenta');
+        // LÓGICA DE CADUCIDAD DE SESIÓN
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
+          logout();
+        } else {
+          toast.error('Error al guardar en tu cuenta');
+        }
       }
     } else {
       setCarrito(prev => {
@@ -90,7 +99,13 @@ export const useCarrito = () => {
         fetchCartFromAPI();
         toast.success('Producto eliminado');
       } catch (error) {
-        toast.error('Error al eliminar');
+        // LÓGICA DE CADUCIDAD DE SESIÓN
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
+          logout();
+        } else {
+          toast.error('Error al eliminar');
+        }
       }
     } else {
       setCarrito(prev => prev.filter(item => item.id !== id));
@@ -115,8 +130,14 @@ export const useCarrito = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
       } catch (error) {
-        toast.error('Error de conexión');
-        fetchCartFromAPI(); 
+        // LÓGICA DE CADUCIDAD DE SESIÓN
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
+          logout();
+        } else {
+          toast.error('Error de conexión');
+          fetchCartFromAPI(); 
+        }
       }
     } else {
       setCarrito(prev => prev.map(i => i.id === id ? { ...i, cantidad: nuevaCantidad } : i));

@@ -5,9 +5,10 @@ import { useAuth } from '../context/AuthContext';
 
 export const useFavoritos = () => {
   const [favoritos, setFavoritos] = useState([]);
-  const { user, token } = useAuth();
+  
+  // AÑADIDO: Extraemos la función logout
+  const { user, token, logout } = useAuth();
 
-  // 1. Cargar favoritos desde la Base de Datos
   const fetchFavoritos = async () => {
     if (!user || !token) {
       setFavoritos([]);
@@ -19,22 +20,25 @@ export const useFavoritos = () => {
       });
       setFavoritos(res.data);
     } catch (error) {
-      console.error('Error cargando favoritos de la DB:', error);
+      // LÓGICA DE CADUCIDAD DE SESIÓN
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
+        logout(); // Cerramos la sesión automáticamente
+      } else {
+        console.error('Error cargando favoritos de la DB:', error);
+      }
     }
   };
 
-  // Se ejecuta cada vez que el usuario inicia o cierra sesión
   useEffect(() => {
     fetchFavoritos();
   }, [user, token]);
 
-  // 2. Agregar o Quitar Favorito (Optimistic UI para que se sienta instantáneo)
   const toggleFavorito = async (producto) => {
     if (!user || !token) return;
 
     const isFav = favoritos.some(p => p.id === producto.id);
     
-    // Actualizamos la interfaz al instante
     if (isFav) {
       setFavoritos(prev => prev.filter(p => p.id !== producto.id));
       toast.success('Eliminado de favoritos');
@@ -43,7 +47,6 @@ export const useFavoritos = () => {
       toast.success('Agregado a favoritos ❤️');
     }
 
-    // Le avisamos a la Base de Datos en segundo plano
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/favoritos/toggle`, {
         productId: producto.id
@@ -51,12 +54,17 @@ export const useFavoritos = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {
-      toast.error('Error de conexión con el servidor');
-      fetchFavoritos(); // Revertimos si falla el backend
+      // LÓGICA DE CADUCIDAD DE SESIÓN
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', { duration: 4000 });
+        logout(); // Cerramos la sesión automáticamente
+      } else {
+        toast.error('Error de conexión con el servidor');
+        fetchFavoritos(); // Revertimos visualmente si falla el backend
+      }
     }
   };
 
-  // Creamos un array solo con los IDs para que sea fácil pintar los corazones de rojo
   const favoritosIds = favoritos.map(f => f.id);
 
   return { favoritos, favoritosIds, toggleFavorito };
