@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { crearSlug } from '../helpers/slug';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { useFavoritos } from '../hooks/useFavoritos'; // NUEVO HOOK
+import { useFavoritos } from '../hooks/useFavoritos'; 
 
 const Catalogo = ({
   productosIniciales = [],
@@ -15,7 +15,7 @@ const Catalogo = ({
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { favoritosIds, toggleFavorito } = useFavoritos(); // CONECTADO A LA BD
+  const { favoritosIds, toggleFavorito } = useFavoritos(); 
   
   const esHotWheels = useMemo(() => productosIniciales.some(p => p.categoria === 'Hot Wheels'), [productosIniciales]);
   
@@ -43,9 +43,7 @@ const Catalogo = ({
     toggleFavorito(prod);
   };
 
-  const [paginaActual, setPaginaActual] = useState(1);
-  const itemsPorPagina = 36;
-
+  // Se eliminó la paginación, reseteamos solo los filtros cuando cambia la categoría
   useEffect(() => {
     setMarcasSeleccionadas([]);
     setFabricantesSeleccionados([]);
@@ -54,12 +52,7 @@ const Catalogo = ({
     setEscalasSeleccionadas([]);
     setFiltroDisponibilidad({ disponibles: false, agotados: false });
     setBusqueda("");
-    setPaginaActual(1); 
   }, [productosIniciales]);
-
-  useEffect(() => {
-    setPaginaActual(1);
-  }, [busqueda, marcasSeleccionadas, fabricantesSeleccionados, seriesSeleccionadas, tiposAccesoriosSeleccionados, escalasSeleccionadas, filtroDisponibilidad]);
 
   const marcasDisponibles = useMemo(() => esAccesorios ? [] : [...new Set(productosIniciales.map(p => p.marca || "Otras"))].sort(), [productosIniciales, esAccesorios]);
   const fabricantesDisponibles = useMemo(() => (esHotWheels || esAccesorios) ? [] : [...new Set(productosIniciales.map(p => p.fabricante))].sort(), [productosIniciales, esHotWheels, esAccesorios]);
@@ -104,16 +97,11 @@ const Catalogo = ({
       return 0; 
     });
 
-  const totalPaginas = Math.ceil(productosProcesados.length / itemsPorPagina);
-  const indexUltimo = paginaActual * itemsPorPagina;
-  const indexPrimero = indexUltimo - itemsPorPagina;
-  const productosPaginados = productosProcesados.slice(indexPrimero, indexUltimo);
-
   const NAV_CATEGORIAS = [
-    { label: 'Motos', path: '/motos', match: 'Motos a Escala' },
-    { label: 'Autos', path: '/autos', match: 'Autos a Escala' },
-    { label: 'Hot Wheels', path: '/hotwheels', match: 'Hot Wheels' },
-    { label: 'Accesorios', path: '/accesorios', match: 'Accesorios' },
+    { label: 'Motos', path: '/motos', match: 'Motos a Escala', icon: '🏍️' },
+    { label: 'Autos', path: '/autos', match: 'Autos a Escala', icon: '🏎️' },
+    { label: 'Hot Wheels', path: '/hotwheels', match: 'Hot Wheels', icon: '🔥' },
+    { label: 'Accesorios', path: '/accesorios', match: 'Accesorios', icon: '🧢' },
   ];
   const categoriasAmostrar = NAV_CATEGORIAS.filter(cat => cat.match !== titulo);
 
@@ -126,19 +114,25 @@ const Catalogo = ({
         {subtitulo && <p className="text-slate-500 mt-2">{subtitulo}</p>}
       </div>
 
-      <div 
-        className="flex lg:hidden overflow-x-auto gap-3 mb-6 pb-1 hide-scroll" 
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-      >
-        {categoriasAmostrar.map(cat => (
-          <button
-            key={cat.path}
-            onClick={() => navigate(cat.path)}
-            className="whitespace-nowrap px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition-all shadow-sm flex-shrink-0"
-          >
-            {cat.label}
-          </button>
-        ))}
+      <div className="lg:hidden mb-8">
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+          <span className="w-4 h-px bg-slate-300"></span> Explora otras categorías:
+        </p>
+        <div 
+          className="flex overflow-x-auto gap-3 pb-2 hide-scroll snap-x" 
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+        >
+          {categoriasAmostrar.map(cat => (
+            <button
+              key={cat.path}
+              onClick={() => navigate(cat.path)}
+              className="snap-start flex items-center gap-2.5 whitespace-nowrap px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 hover:bg-slate-50 active:scale-95 transition-all shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] flex-shrink-0"
+            >
+              <span className="text-xl">{cat.icon}</span>
+              <span>{cat.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-10">
@@ -275,9 +269,10 @@ const Catalogo = ({
                 </p>
             </div>
 
-            {productosPaginados.length > 0 ? (
+            {productosProcesados.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
-                    {productosPaginados.map((producto, index) => {
+                    {/* Se renderizan todos los productos procesados (sin dividir por páginas) */}
+                    {productosProcesados.map((producto, index) => {
                         const tieneStock = producto.stock > 0;
                         const isFav = favoritosIds.includes(producto.id);
                         const categoriaKey = producto.categoria || 'acc';
@@ -360,26 +355,6 @@ const Catalogo = ({
             ) : (
                 <div className="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                     <p className="text-slate-500 font-medium">No hay productos que coincidan con los filtros.</p>
-                </div>
-            )}
-
-            {totalPaginas > 1 && (
-                <div className="flex justify-center items-center gap-4 mt-10">
-                    <button 
-                        onClick={() => { setPaginaActual(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        disabled={paginaActual === 1}
-                        className="px-5 py-2 bg-white border-2 border-slate-200 text-slate-700 rounded-xl disabled:opacity-50 hover:border-slate-900 hover:text-slate-900 font-bold transition-all"
-                    >
-                        Anterior
-                    </button>
-                    <span className="font-bold text-slate-500">Página {paginaActual} de {totalPaginas}</span>
-                    <button 
-                        onClick={() => { setPaginaActual(p => Math.min(totalPaginas, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        disabled={paginaActual === totalPaginas}
-                        className="px-5 py-2 bg-slate-900 text-white rounded-xl disabled:bg-slate-300 font-bold transition-colors"
-                    >
-                        Siguiente
-                    </button>
                 </div>
             )}
         </div>

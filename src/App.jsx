@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 
 import ProtectedRoute from './components/ProtectedRoute'; 
 
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import NavbarMejorada from './components/BarraNavegacion'; 
 import CartDrawer from './components/CarritoLateral'; 
 import Home from './pages/Inicio';

@@ -88,7 +88,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
         </div>
       </div>
 
-      {/* ===================== REDES SOCIALES (Profesional & Optimizado) ===================== */}
+      {/* ===================== REDES SOCIALES ===================== */}
       <div className="relative bg-gradient-to-b from-white to-slate-50 border-y border-slate-200">
         <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 sm:py-12 md:py-16">
           <div className="text-center mb-6 sm:mb-8">
@@ -159,7 +159,6 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
               return (
                 <div 
                   key={`${prod.categoria}-${prod.id}`} 
-                  // 3. CAMBIO: Usar navigate para ir a la ruta del producto
                   onClick={() => {
                   let rutaCategoria = 'otros';
                   if (prod.categoria === 'Motos') rutaCategoria = 'motos';
@@ -167,9 +166,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
                   else if (prod.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
                   else rutaCategoria = 'accesorios';
                   
-                  // CAMBIO: Agregamos "-${prod.id}" al final
                   const slugUnico = `${crearSlug(prod.nombre)}-${prod.id}`;
-                  
                   navigate(`/producto/${rutaCategoria}/${slugUnico}`, { state: { fromInternal: true } });
               }}
                   className="bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden group flex flex-col cursor-pointer"
@@ -222,6 +219,40 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
               );
             })}
           </div>
+
+          {/* ===================== NUEVA SECCIÓN: CATÁLOGO COMPLETO ===================== */}
+          <div className="mt-12 md:mt-24 border-t border-slate-200 pt-12 md:pt-16 text-center">
+            <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-3">Catálogo Completo</h2>
+            <p className="text-slate-500 mb-8 max-w-lg mx-auto text-sm md:text-base">Elige la categoría que más te apasione y descubre todo nuestro inventario.</p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 max-w-4xl mx-auto">
+              <button onClick={() => navigate('/motos')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🏍️</span>
+                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Motos a escala</span>
+              </button>
+
+              <button onClick={() => navigate('/autos')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-red-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-red-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🏎️</span>
+                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-red-700">Autos a escala</span>
+              </button>
+
+              <button onClick={() => navigate('/hotwheels')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-orange-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-orange-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🔥</span>
+                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-orange-600">Hot Wheels</span>
+              </button>
+
+              <button onClick={() => navigate('/accesorios')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-slate-300 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-slate-100 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🧢</span>
+                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-slate-900">Accesorios</span>
+              </button>
+            </div>
+          </div>
+          {/* ========================================================================================= */}
+
         </div>
       </section>
 
@@ -319,7 +350,6 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
           </div>
 
           <button 
-            // 4. CAMBIO: Usar navigate en vez de setVistaActual
             onClick={() => navigate('/envios')} 
             className="inline-flex items-center gap-3 bg-slate-900 text-white px-8 md:px-12 py-3 md:py-4 rounded-xl font-bold hover:bg-slate-800 transition shadow-lg hover:shadow-xl cursor-pointer text-sm md:text-base"
           >
