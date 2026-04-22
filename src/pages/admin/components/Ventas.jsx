@@ -21,7 +21,8 @@ export default function Ventas({ ventas, productos, lotes, cargarVentas, cargarP
     gastos: { envio: '', transporte: '', alimentacion: '' }
   });
 
-  const totalHistoricoVentas = ventas.reduce((acc, v) => acc + v.precioVentaTotal, 0);
+  // CORRECCIÓN: Ingreso real (Precio total cobrado - Gastos de operación)
+  const totalHistoricoVentas = ventas.reduce((acc, v) => acc + (v.precioVentaTotal - v.totalGastos), 0);
   const totalHistoricoGanancia = ventas.reduce((acc, v) => acc + v.gananciaNeta, 0);
 
   const abrirNuevaVenta = () => {
@@ -168,8 +169,8 @@ export default function Ventas({ ventas, productos, lotes, cargarVentas, cargarP
 
       {/* MODAL: FORMULARIO DE VENTA */}
       {mostrarFormVenta && (
-         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-           <div className="bg-white rounded-2xl p-6 w-full max-w-3xl shadow-2xl overflow-y-auto max-h-[95vh]">
+         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70] p-4 backdrop-blur-sm">
+           <div className="bg-white rounded-2xl p-5 md:p-6 w-full max-w-3xl shadow-2xl overflow-y-auto max-h-[85vh] pb-12">
              <div className="flex justify-between items-center mb-6">
                <h2 className="text-2xl font-black flex items-center gap-2"><TrendingUp size={24} className="text-green-600"/> {ventaEditando ? 'Editar Venta' : 'Registrar Venta Manual'}</h2>
                <button onClick={() => setMostrarFormVenta(false)} className="p-2 hover:bg-slate-100 rounded-full"><X /></button>
@@ -177,7 +178,7 @@ export default function Ventas({ ventas, productos, lotes, cargarVentas, cargarP
              
              <form onSubmit={handleGuardarVenta} className="space-y-6">
                
-               {/* PANEL INTERACTIVO DE PRODUCTOS (REEMPLAZA AL SELECT NATIVO) */}
+               {/* PANEL INTERACTIVO DE PRODUCTOS */}
                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                  <label className="block text-sm font-bold text-slate-900 mb-3">1. Busca y da clic sobre el producto vendido</label>
                  
@@ -242,7 +243,7 @@ export default function Ventas({ ventas, productos, lotes, cargarVentas, cargarP
                  </div>
                )}
 
-               <div className="pt-4 border-t border-slate-100">
+               <div className="pt-6 mt-4 mb-4 border-t border-slate-100">
                  <button type="submit" disabled={!formVenta.productId} className="w-full py-4 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition shadow-lg text-lg">
                     {ventaEditando ? 'Guardar Cambios' : 'Confirmar Venta y Descontar Stock'}
                  </button>

@@ -73,7 +73,7 @@ export default function Finanzas({ user, lotes, ventas, arriendos, cargarLotes, 
       {/* Banner de Advertencia si entra un Socio */}
       {!esAndres && (
         <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 flex items-center gap-3 text-yellow-800 font-bold mb-4">
-          <Lock size={20} /> Estás en modo Lectura. Solo Andrés tiene permisos para modificar los reportes financieros y el arriendo.
+          <Lock size={20} /> Estás en modo Lectura, no tienes permisos para modificar.
         </div>
       )}
 

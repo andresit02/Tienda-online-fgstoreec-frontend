@@ -70,7 +70,7 @@ export default function AdminDashboard() {
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-black text-slate-900">Panel Administrador</h1>
-            <p className="text-slate-500 text-sm">Hola {user?.nombre}, gestiona tu negocio al 100%</p>
+            <p className="text-slate-500 text-sm">Hola {user?.nombre}, gestiona tu negocio</p>
           </div>
         </div>
 

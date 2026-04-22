@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom'; 
 import { Toaster } from 'react-hot-toast'; 
+import ReactGA from "react-ga4"; // <--- NUEVO: Importación de Google Analytics
 
 import ProtectedRoute from './components/ProtectedRoute'; 
 
@@ -28,14 +29,21 @@ import ListaDeseos from './pages/ListaDeseos';
 import { useCarrito } from './hooks/useCarrito';
 import { useProductos } from './hooks/useProductos';
 
-const ScrollToTop = () => {
+// --- INICIALIZAR GOOGLE ANALYTICS ---
+ReactGA.initialize("GTM-KRDG2R92"); // <--- REEMPLAZA ESTO CON TU ID DE MEDICIÓN REAL
+
+// --- NUEVO: Función combinada para subir el scroll y registrar la visita en Analytics ---
+const ScrollToTopAndTrack = () => {
   const { pathname } = useLocation();
   const action = useNavigationType(); 
 
   useEffect(() => {
+    // 1. Sube el scroll
     if (action !== 'POP') {
       window.scrollTo(0, 0);
     }
+    // 2. Reporta silenciosamente la visita a Google Analytics
+    ReactGA.send({ hitType: "pageview", page: pathname });
   }, [pathname, action]);
   
   return null;
@@ -61,9 +69,9 @@ function App() {
   const destacados = productos.filter(p => p.destacado === true).slice(0, 8); 
 
   return (
-    // CAMBIO IMPORTANTE: pb-16 en móviles para que el contenido no quede oculto detrás de la nueva barra
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col pb-16 md:pb-0">
-      <ScrollToTop />
+      {/* CAMBIO: Usamos el nuevo componente que trackea las visitas */}
+      <ScrollToTopAndTrack />
       
       <Toaster position="top-center" reverseOrder={false} />
       
@@ -83,10 +91,8 @@ function App() {
           <Route path="/terminos" element={ <Terminos /> } />
           <Route path="/privacidad" element={ <Privacidad /> } />
           
-          {/* NUEVA RUTA DE LISTA DE DESEOS */}
           <Route path="/deseos" element={ <ListaDeseos agregarAlCarrito={agregarAlCarrito} /> } />
 
-          {/* --- RUTAS DE AUTENTICACIÓN --- */}
           <Route path="/registro" element={ <Registro /> } /> 
           <Route path="/login" element={ <LoginMejorado /> } />
           <Route path="/perfil" element={ <Perfil /> } />
@@ -94,7 +100,6 @@ function App() {
           <Route path="/olvide-contrasena" element={ <OlvideContrasena /> } />
           <Route path="/restablecer-contrasena" element={ <RestablecerContrasena /> } />
 
-          {/* --- RUTA DE ADMIN PROTEGIDA --- */}
           <Route path="/admin" element={ 
             <ProtectedRoute requiredRole="admin">
               <AdminDashboard />
@@ -105,7 +110,6 @@ function App() {
         </Routes>
       </main>
 
-      {/* NUEVA BARRA INFERIOR (Solo visible en móviles) */}
       <BottomNav 
         carritoCount={carrito.reduce((acc, item) => acc + item.cantidad, 0)} 
         onOpenCart={() => setIsCarritoAbierto(true)} 

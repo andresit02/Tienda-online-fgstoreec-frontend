@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { Plus, Package, Edit2, Save, X } from 'lucide-react'; // Añadidos iconos de edición
+import { Plus, Package, Edit2, Save, X, ChevronDown, ChevronUp } from 'lucide-react'; 
 
 const BASE_API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 export default function Lotes({ lotes, cargarLotes, config }) {
   const [nuevoLoteNombre, setNuevoLoteNombre] = useState('');
   
-  // NUEVOS ESTADOS PARA EDICIÓN DE FECHA
   const [editandoFechaId, setEditandoFechaId] = useState(null);
   const [nuevaFecha, setNuevaFecha] = useState('');
+
+  // NUEVO ESTADO: Para saber qué lote está desplegado
+  const [loteExpandido, setLoteExpandido] = useState(null);
 
   const handleCrearLote = async (e) => {
     e.preventDefault();
@@ -23,7 +25,6 @@ export default function Lotes({ lotes, cargarLotes, config }) {
     } catch (error) { toast.error('Error al crear lote'); }
   };
 
-  // NUEVA FUNCIÓN PARA GUARDAR LA FECHA
   const handleActualizarFecha = async (id) => {
     if (!nuevaFecha) return toast.error('Selecciona una fecha válida');
     try {
@@ -32,6 +33,11 @@ export default function Lotes({ lotes, cargarLotes, config }) {
       setEditandoFechaId(null);
       cargarLotes();
     } catch (error) { toast.error('Error al actualizar fecha'); }
+  };
+
+  // Función para abrir/cerrar el acordeón de productos
+  const toggleLote = (id) => {
+    setLoteExpandido(prev => prev === id ? null : id);
   };
 
   return (
@@ -51,7 +57,6 @@ export default function Lotes({ lotes, cargarLotes, config }) {
             <div className="flex justify-between items-start mb-4">
               <h3 className="font-black text-lg text-slate-900 pr-2">{lote.nombre}</h3>
               
-              {/* SISTEMA DE EDICIÓN DE FECHA */}
               <div className="flex-shrink-0">
                 {editandoFechaId === lote.id ? (
                   <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-inner">
@@ -72,7 +77,6 @@ export default function Lotes({ lotes, cargarLotes, config }) {
                   <button 
                     onClick={() => {
                       setEditandoFechaId(lote.id);
-                      // Extraemos la fecha en formato YYYY-MM-DD para el input type="date"
                       setNuevaFecha(new Date(lote.fecha).toISOString().split('T')[0]);
                     }}
                     className="flex items-center gap-1.5 text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition group"
@@ -96,12 +100,62 @@ export default function Lotes({ lotes, cargarLotes, config }) {
               </div>
               <div className="bg-green-50 p-2 rounded-lg border border-green-100">
                 <p className="text-[10px] text-green-700 font-bold uppercase tracking-wider mb-1">Stock Actual</p>
-                {/* CAMBIO REALIZADO: Ahora dice "unidades" al lado del número */}
                 <p className="text-xl font-black text-green-700 flex items-center gap-1">
                   <Package size={16}/> {lote.unidadesDisponibles || 0} <span className="text-xs font-bold ml-0.5">unidades</span>
                 </p>
               </div>
             </div>
+
+            {/* ==================== NUEVO: BOTÓN Y LISTA DESPLEGABLE DE PRODUCTOS ==================== */}
+            <button
+              onClick={() => toggleLote(lote.id)}
+              className="mt-5 w-full flex items-center justify-center gap-2 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 transition active:scale-95"
+            >
+              {loteExpandido === lote.id ? (
+                <><ChevronUp size={18} /> Ocultar Productos</>
+              ) : (
+                <><ChevronDown size={18} /> Ver Productos del Lote</>
+              )}
+            </button>
+
+            {loteExpandido === lote.id && (
+              <div className="mt-4 pt-4 border-t border-slate-100 animate-fade-in">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Modelos en este lote</h4>
+                
+                {lote.productos && lote.productos.length > 0 ? (
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 hide-scroll">
+                    {lote.productos.map(prod => (
+                      <div key={prod.id} className="flex justify-between items-center bg-white border border-slate-100 p-2.5 rounded-xl shadow-sm">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <img 
+                            src={prod.imagenes?.principal || '/img/placeholder.png'} 
+                            alt={prod.nombre} 
+                            className="w-10 h-10 object-contain bg-slate-50 rounded-lg border border-slate-100 flex-shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-slate-900 truncate">{prod.nombre}</p>
+                            <p className="text-[10px] font-medium text-slate-500 mt-0.5">
+                              Costo: <span className="font-bold text-slate-700">${prod.costoUnitario}</span> <span className="mx-1">•</span> Venta: <span className="font-bold text-slate-700">${prod.precio}</span>
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex-shrink-0 text-right ml-2">
+                          <span className={`text-xs font-black px-2.5 py-1.5 rounded-lg flex items-center gap-1 ${prod.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            <Package size={14} /> {prod.stock}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    <p className="text-xs font-medium text-slate-500">No hay productos asignados a este lote aún.</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* ======================================================================================= */}
             
           </div>
         ))}

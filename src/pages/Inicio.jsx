@@ -7,6 +7,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import {TikTokIcon, InstagramIcon, FacebookIcon} from "../components/SocialMediaIcons";
 import { crearSlug } from '../helpers/slug';
+import { Bike, CarFront, Flame, Settings } from "lucide-react";
 
 const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
   // 2. INICIALIZAR HOOK
@@ -228,26 +229,30 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 max-w-4xl mx-auto">
               <button onClick={() => navigate('/motos')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
-                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🏍️</span>
+                {/* REEMPLAZO POR IMAGEN */}
+                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776834311/moto_bnf3th.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
                 <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Motos a escala</span>
               </button>
 
-              <button onClick={() => navigate('/autos')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-red-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-red-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
-                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🏎️</span>
-                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-red-700">Autos a escala</span>
+              <button onClick={() => navigate('/autos')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                {/* REEMPLAZO POR IMAGEN */}
+                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776834449/carro-deportivo_ncivec.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
+                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Autos a escala</span>
               </button>
 
-              <button onClick={() => navigate('/hotwheels')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-orange-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-orange-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
-                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🔥</span>
-                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-orange-600">Hot Wheels</span>
+              <button onClick={() => navigate('/hotwheels')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                {/* REEMPLAZO POR IMAGEN */}
+                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776835042/rueda-de-fuego_i8monv.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
+                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Hotwheels</span>
               </button>
 
-              <button onClick={() => navigate('/accesorios')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-slate-300 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-slate-100 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
-                <span className="text-5xl md:text-6xl mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform">🧢</span>
-                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-slate-900">Accesorios</span>
+              <button onClick={() => navigate('/accesorios')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                {/* REEMPLAZO POR IMAGEN */}
+                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776834256/llavero_3_otof2g.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
+                <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Accesorios</span>
               </button>
             </div>
           </div>

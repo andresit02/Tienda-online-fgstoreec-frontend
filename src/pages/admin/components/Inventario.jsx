@@ -21,7 +21,6 @@ export default function Inventario({ productos, lotes, cargarProductos, cargarLo
 
   const [formData, setFormData] = useState(initialFormState);
 
-  // Efecto para el buscador local
   useEffect(() => {
     const timeoutId = setTimeout(() => { cargarProductos(busqueda); }, 400); 
     return () => clearTimeout(timeoutId);
@@ -117,8 +116,8 @@ export default function Inventario({ productos, lotes, cargarProductos, cargarLo
       </div>
 
       {mostrarFormulario && (
-         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-         <div className="bg-white rounded-2xl p-4 md:p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70] p-4 backdrop-blur-sm">
+         <div className="bg-white rounded-2xl p-4 md:p-6 w-full max-w-2xl shadow-2xl max-h-[85vh] overflow-y-auto pb-12">
            <div className="flex justify-between items-center mb-6">
              <h2 className="text-xl font-bold">{productoEditando ? 'Editar Producto' : 'Nuevo Producto'}</h2>
              <button onClick={() => setMostrarFormulario(false)} className="p-2 hover:bg-slate-100 rounded-full"><X /></button>
@@ -197,7 +196,7 @@ export default function Inventario({ productos, lotes, cargarProductos, cargarLo
                <button type="button" onClick={() => setFormData({ ...formData, galeria: [...formData.galeria, ''] })} className="mt-3 text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"><Plus size={16} /> Añadir otra imagen</button>
              </div>
 
-             <div className="col-span-2 mt-4 flex gap-3">
+             <div className="col-span-2 mt-6 mb-2 flex gap-3">
                <button type="button" onClick={() => setMostrarFormulario(false)} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200 transition">Cancelar</button>
                <button type="submit" className="flex-1 py-3 bg-slate-900 text-white font-bold rounded-xl flex justify-center items-center gap-2 hover:bg-slate-800 transition"><Save size={18} /> Guardar Producto</button>
              </div>
