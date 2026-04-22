@@ -271,17 +271,17 @@ const Catalogo = ({
 
             {productosProcesados.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
-                    {/* Se renderizan todos los productos procesados (sin dividir por páginas) */}
                     {productosProcesados.map((producto, index) => {
-                        const tieneStock = producto.stock > 0;
+                        const stock = producto.stock || 0;
+                        const isAgotado = stock === 0;
+                        const isUltimaUnidad = stock === 1;
                         const isFav = favoritosIds.includes(producto.id);
-                        const categoriaKey = producto.categoria || 'acc';
-                        const uniqueKey = `${categoriaKey}-${producto.id}-${index}`;
+                        const uniqueKey = `${producto.categoria || 'acc'}-${producto.id}-${index}`;
                         
                         let etiquetaSecundaria = "";
                         if (esHotWheels) etiquetaSecundaria = producto.serie;
                         else if (esAccesorios) etiquetaSecundaria = producto.categoria; 
-                        else etiquetaSecundaria = producto.fabricante;
+                        else etiquetaSecundaria = producto.fabricante || producto.marca;
 
                         return (
                             <div 
@@ -295,56 +295,72 @@ const Catalogo = ({
                                   const slugUnico = `${crearSlug(producto.nombre)}-${producto.id}`;
                                   navigate(`/producto/${rutaCategoria}/${slugUnico}`, { state: { fromInternal: true } });
                                 }} 
-                                className="group bg-white rounded-xl border border-slate-100 hover:shadow-xl flex flex-col overflow-hidden cursor-pointer relative"
+                                className="bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200 overflow-hidden group flex flex-col cursor-pointer relative"
                             >
+                                {/* Botón de Favoritos Integrado */}
                                 <button 
                                   onClick={(e) => handleFavoritoClick(e, producto)} 
-                                  className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-full text-slate-400 hover:text-red-500 shadow-sm z-10 transition-colors border border-slate-100/50"
+                                  className="absolute top-2 right-2 p-1.5 md:p-2 bg-white/90 backdrop-blur-sm rounded-full text-slate-300 hover:text-red-500 shadow-sm z-10 transition-colors border border-slate-100/50"
                                 >
-                                  <Heart size={18} fill={isFav ? "currentColor" : "none"} className={isFav ? "text-red-500" : ""} />
+                                  <Heart size={16} fill={isFav ? "currentColor" : "none"} className={isFav ? "text-red-500" : ""} />
                                 </button>
 
-                                <div className="relative h-36 sm:h-48 md:h-60 bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
+                                {/* Contenedor de Imagen */}
+                                <div className="relative h-36 sm:h-48 md:h-60 bg-slate-50 flex items-center justify-center p-4">
                                     <img 
                                         src={producto.imagenes?.principal} 
                                         alt={producto.nombre} 
-                                        className={`w-full h-full object-contain transition-transform duration-500 group-hover:scale-110`} 
+                                        className={`w-full h-full object-contain transition-transform duration-500 ${isAgotado ? 'opacity-40' : 'group-hover:scale-110'}`} 
                                         onError={(e) => e.currentTarget.src = "/img/placeholder.png"} 
                                     />
-                                    {!tieneStock && (
-                                      <div className="absolute bottom-0 left-0 right-0 bg-red-600/90 text-white text-center text-[10px] md:text-xs font-bold py-1">
-                                        AGOTADO
-                                      </div>
-                                    )}
                                 </div>
 
+                                {/* Banners Dinámicos de Stock */}
+                                {isUltimaUnidad && (
+                                  <div className="bg-[#fef08a] text-yellow-900 text-center text-[10px] md:text-xs font-bold py-1.5 border-y border-yellow-200">
+                                    Última unidad en stock
+                                  </div>
+                                )}
+                                {isAgotado && (
+                                  <div className="bg-[#c25953] text-white text-center text-[10px] md:text-xs font-bold py-1.5">
+                                    Agotado
+                                  </div>
+                                )}
+
+                                {/* Detalles y Textos */}
                                 <div className="p-3 md:p-5 flex-1 flex flex-col">
-                                    <div className="flex justify-between items-center mb-2 gap-2">
-                                        <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[80px] md:max-w-none text-right">
+                                    <div className="flex justify-between items-center mb-1.5 md:mb-2 gap-1">
+                                        <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest truncate max-w-[60%] ${isAgotado ? 'text-slate-400' : 'text-slate-500'}`}>
                                             {etiquetaSecundaria}
+                                        </span>
+                                        <span className={`text-[9px] md:text-[10px] font-bold whitespace-nowrap ${isAgotado ? 'text-slate-400' : 'text-[#2e7d32]'}`}>
+                                          {isAgotado ? 'Sin disponibilidad' : 'En stock'}
                                         </span>
                                     </div>
 
-                                    <h3 className="text-sm md:text-base font-bold text-slate-900 leading-tight mb-2 md:mb-4 group-hover:text-red-600 transition-colors line-clamp-2 min-h-[2.5em]">
+                                    <h3 className={`font-bold text-xs sm:text-sm md:text-base leading-tight mb-3 md:mb-4 flex-1 line-clamp-2 ${isAgotado ? 'text-slate-400' : 'text-slate-900'}`}>
                                         {producto.nombre}
                                     </h3>
 
-                                    <div className="mt-auto flex items-center justify-between gap-2">
-                                        <span className="text-lg md:text-xl font-black text-slate-900">
+                                    <div className="mt-auto">
+                                        <span className={`block text-lg md:text-2xl font-black mb-2 md:mb-3 ${isAgotado ? 'text-slate-400' : 'text-slate-900'}`}>
                                             ${producto.precio.toFixed(2)}
                                         </span>
                                         
                                         <button 
-                                            disabled={!tieneStock} 
                                             onClick={(e) => { 
                                                 e.stopPropagation(); 
-                                                if (tieneStock) agregarAlCarrito(producto); 
+                                                if (!isAgotado) agregarAlCarrito(producto); 
                                             }} 
-                                            className={`p-2 md:p-2.5 rounded-lg transition-all shadow-sm flex-shrink-0 
-                                                ${tieneStock ? 'bg-slate-900 text-white hover:bg-red-600' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                            disabled={isAgotado}
+                                            className={`w-full flex items-center justify-center gap-2 py-2 md:py-2.5 rounded-lg md:rounded-xl text-xs md:text-sm font-bold transition-all
+                                              ${isAgotado 
+                                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none' 
+                                                : 'bg-[#0f172a] text-white hover:bg-slate-800 active:scale-95 shadow-md'
+                                              }
                                             `}
                                         >
-                                            <ShoppingCart size={18} className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                                            <ShoppingCart size={16} className="md:w-4 md:h-4" /> Agregar al carrito
                                         </button>
                                     </div>
                                 </div>

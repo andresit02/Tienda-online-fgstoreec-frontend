@@ -155,64 +155,80 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
 
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {productos && productos.map((prod) => {
-              const tieneStock = prod.stock > 0;
+              const stock = prod.stock || 0;
+              const isAgotado = stock === 0;
+              const isUltimaUnidad = stock === 1;
 
               return (
                 <div 
                   key={`${prod.categoria}-${prod.id}`} 
                   onClick={() => {
-                  let rutaCategoria = 'otros';
-                  if (prod.categoria === 'Motos') rutaCategoria = 'motos';
-                  else if (prod.categoria === 'Autos') rutaCategoria = 'autos';
-                  else if (prod.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
-                  else rutaCategoria = 'accesorios';
-                  
-                  const slugUnico = `${crearSlug(prod.nombre)}-${prod.id}`;
-                  navigate(`/producto/${rutaCategoria}/${slugUnico}`, { state: { fromInternal: true } });
-              }}
-                  className="bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden group flex flex-col cursor-pointer"
+                    let rutaCategoria = 'otros';
+                    if (prod.categoria === 'Motos') rutaCategoria = 'motos';
+                    else if (prod.categoria === 'Autos') rutaCategoria = 'autos';
+                    else if (prod.categoria === 'Hot Wheels') rutaCategoria = 'hotwheels';
+                    else rutaCategoria = 'accesorios';
+                    const slugUnico = `${crearSlug(prod.nombre)}-${prod.id}`;
+                    navigate(`/producto/${rutaCategoria}/${slugUnico}`, { state: { fromInternal: true } });
+                  }}
+                  className="bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200 overflow-hidden group flex flex-col cursor-pointer"
                 >
                   
-                  <div className="relative h-36 sm:h-48 md:h-56 aspect-[4/3] bg-slate-100 overflow-hidden flex items-center justify-center p-4">
+                  {/* Contenedor de Imagen */}
+                  <div className="relative h-40 sm:h-48 md:h-56 bg-slate-50 flex items-center justify-center p-4">
                     <img 
                       src={prod.imagenes?.principal}
                       alt={prod.nombre} 
-                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                      className={`w-full h-full object-contain transition-transform duration-500 ${isAgotado ? 'opacity-40' : 'group-hover:scale-110'}`}
                     />
-                    {!tieneStock && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-red-600/90 text-white text-center text-[10px] md:text-xs font-bold py-1">
-                        AGOTADO
-                      </div>
-                    )}
                   </div>
 
-                  <div className="p-3 md:p-6 flex-1 flex flex-col">
-                    <div className="flex justify-between items-start mb-2 md:mb-3">
-                      <span className="text-red-600 text-[9px] md:text-[10px] font-bold uppercase tracking-wider truncate">
+                  {/* Banners Dinámicos de Stock */}
+                  {isUltimaUnidad && (
+                    <div className="bg-[#fef08a] text-yellow-900 text-center text-[10px] md:text-xs font-bold py-1.5 border-y border-yellow-200">
+                      Última unidad en stock
+                    </div>
+                  )}
+                  {isAgotado && (
+                    <div className="bg-[#c25953] text-white text-center text-[10px] md:text-xs font-bold py-1.5">
+                      Agotado
+                    </div>
+                  )}
+
+                  {/* Detalles y Textos */}
+                  <div className="p-3 md:p-5 flex-1 flex flex-col">
+                    <div className="flex justify-between items-center mb-1.5 md:mb-2 gap-1">
+                      <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest truncate max-w-[60%] ${isAgotado ? 'text-slate-400' : 'text-slate-500'}`}>
                         {prod.marca || prod.categoria}
                       </span>
+                      <span className={`text-[9px] md:text-[10px] font-bold whitespace-nowrap ${isAgotado ? 'text-slate-400' : 'text-[#2e7d32]'}`}>
+                        {isAgotado ? 'Sin disponibilidad' : 'En stock'}
+                      </span>
                     </div>
-                    <h3 className="font-bold text-slate-900 text-sm md:text-lg leading-tight mb-2 md:mb-4 flex-1 line-clamp-2">
+
+                    <h3 className={`font-bold text-xs sm:text-sm md:text-base leading-tight mb-3 md:mb-4 flex-1 line-clamp-2 ${isAgotado ? 'text-slate-400' : 'text-slate-900'}`}>
                       {prod.nombre}
                     </h3>
-                    <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-slate-100">
-                      <span className="text-lg md:text-xl font-black text-slate-900">
+
+                    <div className="mt-auto">
+                      <span className={`block text-lg md:text-2xl font-black mb-2 md:mb-3 ${isAgotado ? 'text-slate-400' : 'text-slate-900'}`}>
                         ${prod.precio.toFixed(2)}
                       </span>
+                      
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (tieneStock) agregarAlCarrito(prod);
+                          if (!isAgotado) agregarAlCarrito(prod);
                         }}
-                        disabled={!tieneStock}
-                        className={`p-2 md:p-2.5 rounded-lg md:rounded-xl transition shadow-lg active:scale-95 flex items-center justify-center
-                          ${tieneStock 
-                            ? 'bg-slate-900 text-white hover:bg-red-600 hover:shadow-red-600/30 cursor-pointer' 
-                            : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                        disabled={isAgotado}
+                        className={`w-full flex items-center justify-center gap-2 py-2 md:py-2.5 rounded-lg md:rounded-xl text-xs md:text-sm font-bold transition-all
+                          ${isAgotado 
+                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none' 
+                            : 'bg-[#0f172a] text-white hover:bg-slate-800 active:scale-95 shadow-md'
                           }
                         `}
                       >
-                        <ShoppingBag size={18} className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                        <ShoppingBag size={16} className="md:w-4 md:h-4" /> Agregar al carrito
                       </button>
                     </div>
                   </div>
