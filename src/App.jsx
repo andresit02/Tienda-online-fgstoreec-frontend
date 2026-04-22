@@ -30,7 +30,7 @@ import { useCarrito } from './hooks/useCarrito';
 import { useProductos } from './hooks/useProductos';
 
 // --- INICIALIZAR GOOGLE ANALYTICS ---
-ReactGA.initialize("GTM-KRDG2R92"); // <--- REEMPLAZA ESTO CON TU ID DE MEDICIÓN REAL
+ReactGA.initialize("G-7PDJP8VFC2"); // <--- REEMPLAZA ESTO CON TU ID DE MEDICIÓN REAL
 
 // --- NUEVO: Función combinada para subir el scroll y registrar la visita en Analytics ---
 const ScrollToTopAndTrack = () => {
