@@ -179,7 +179,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
                     <img 
                       src={prod.imagenes?.principal}
                       alt={prod.nombre} 
-                      className={`w-full h-full object-contain transition-transform duration-500 ${isAgotado ? 'opacity-40' : 'group-hover:scale-110'}`}
+                      className={`w-full h-full object-contain transition-transform duration-500 ${isAgotado ? '' : 'group-hover:scale-110'}`}
                     />
                   </div>
 

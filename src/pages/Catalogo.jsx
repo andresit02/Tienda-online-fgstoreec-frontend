@@ -97,11 +97,11 @@ const Catalogo = ({
       return 0; 
     });
 
-  const NAV_CATEGORIAS = [
-    { label: 'Motos', path: '/motos', match: 'Motos a Escala', icon: '🏍️' },
-    { label: 'Autos', path: '/autos', match: 'Autos a Escala', icon: '🏎️' },
-    { label: 'Hot Wheels', path: '/hotwheels', match: 'Hot Wheels', icon: '🔥' },
-    { label: 'Accesorios', path: '/accesorios', match: 'Accesorios', icon: '🧢' },
+const NAV_CATEGORIAS = [
+    { label: 'Motos', path: '/motos', match: 'Motos a Escala', imgSrc: 'https://res.cloudinary.com/dx0dmthm2/image/upload/f_auto,q_100,w_100/v1776834311/moto_bnf3th.png' },
+    { label: 'Autos', path: '/autos', match: 'Autos a Escala', imgSrc: 'https://res.cloudinary.com/dx0dmthm2/image/upload/f_auto,q_100,w_100/v1776834449/carro-deportivo_ncivec.png' },
+    { label: 'Hot Wheels', path: '/hotwheels', match: 'Hot Wheels', imgSrc: 'https://res.cloudinary.com/dx0dmthm2/image/upload/f_auto,q_100,w_100/v1776835042/rueda-de-fuego_i8monv.png' },
+    { label: 'Accesorios', path: '/accesorios', match: 'Accesorios', imgSrc: 'https://res.cloudinary.com/dx0dmthm2/image/upload/f_auto,q_100,w_100/v1776834256/llavero_3_otof2g.png' },
   ];
   const categoriasAmostrar = NAV_CATEGORIAS.filter(cat => cat.match !== titulo);
 
@@ -128,7 +128,8 @@ const Catalogo = ({
               onClick={() => navigate(cat.path)}
               className="snap-start flex items-center gap-2.5 whitespace-nowrap px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-800 hover:bg-slate-50 active:scale-95 transition-all shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] flex-shrink-0"
             >
-              <span className="text-xl">{cat.icon}</span>
+              {/* REEMPLAZO DEL EMOJI POR LA IMAGEN 3D */}
+              <img src={cat.imgSrc} alt={cat.label} className="w-6 h-6 object-contain drop-shadow-sm" style={{ imageRendering: 'high-quality' }} />
               <span>{cat.label}</span>
             </button>
           ))}
@@ -310,7 +311,7 @@ const Catalogo = ({
                                     <img 
                                         src={producto.imagenes?.principal} 
                                         alt={producto.nombre} 
-                                        className={`w-full h-full object-contain transition-transform duration-500 ${isAgotado ? 'opacity-40' : 'group-hover:scale-110'}`} 
+                                        className={`w-full h-full object-contain transition-transform duration-500 ${isAgotado ? '' : 'group-hover:scale-110'}`} 
                                         onError={(e) => e.currentTarget.src = "/img/placeholder.png"} 
                                     />
                                 </div>
