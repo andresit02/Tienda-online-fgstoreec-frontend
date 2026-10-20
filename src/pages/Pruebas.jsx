@@ -4,18 +4,18 @@ import { Link } from 'react-router-dom'; // <--- IMPORTAR
 
 // Fotos de envíos realizados (guías de remisión)
 const ENVIOS_REALIZADOS = [
-  { id: 1, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070384/WhatsApp_Image_2026-01-22_at_3.24.32_AM_1_zoelkp.jpg", ciudad: "Azogues", transporte: "Servientrega", guia: "1000548917"},
-  { id: 2, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070385/WhatsApp_Image_2026-01-22_at_3.24.31_AM_iofgt2.jpg", ciudad: "Guayaquil", transporte: "Servientrega", guia: "1000557627" },
-  { id: 3, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070385/WhatsApp_Image_2026-01-22_at_3.24.30_AM_1_epnffv.jpg", ciudad: "Cumanda", transporte: "Servientrega", guia: "1000557647"},
-  { id: 4, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070384/WhatsApp_Image_2026-01-22_at_3.24.32_AM_g6ytzx.jpg", ciudad: "Piñas", transporte: "Servientrega", guia: "1000550887"},
-  { id: 5, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070390/WhatsApp_Image_2026-01-22_at_3.24.25_AM_1_fk9chf.jpg", ciudad: "El Empalme", transporte: "Servientrega", guia: "1000548904"},
-  { id: 6, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070388/WhatsApp_Image_2026-01-22_at_3.24.28_AM_uojvbb.jpg", ciudad: "Santo Domingo", transporte: "Servientrega", guia: "1000557642"},
-  { id: 7, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070389/WhatsApp_Image_2026-01-22_at_3.24.26_AM_sjkbdg.jpg", ciudad: "Yantzaza", transporte: "Servientrega", guia: "1000548917"},
-  { id: 8, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070390/WhatsApp_Image_2026-01-22_at_3.24.25_AM_xxqxy1.jpg", ciudad: "El Guabo", transporte: "Servientrega", guia: "1000550082"},
-  { id: 9, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070392/WhatsApp_Image_2026-01-22_at_3.24.20_AM_u5dzoz.jpg", ciudad: "Ambato", transporte: "Servientrega", guia: "1000548921"},
-  { id: 10, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070391/WhatsApp_Image_2026-01-22_at_3.24.20_AM_1_aht16o.jpg", ciudad: "Loja", transporte: "Servientrega", guia: "1000548911"},
-  { id: 11, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070387/WhatsApp_Image_2026-01-22_at_3.24.29_AM_yczarw.jpg", ciudad: "Santa Rosa", transporte: "Servientrega", guia: "9020829699"},
-  { id: 12, img: "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070396/imgi_44_photo_5174977332010659829_y-dOqa41gz6GFZgoK7_vhgcrm.png", ciudad: "Zumba", transporte: "Servientrega", guia: "9021468959"},
+  { id: 1, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2005.jpg", ciudad: "Azogues", transporte: "Servientrega", guia: "1000548917"},
+  { id: 2, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2010.jpg", ciudad: "Guayaquil", transporte: "Servientrega", guia: "1000557627" },
+  { id: 3, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2008.jpg", ciudad: "Cumanda", transporte: "Servientrega", guia: "1000557647"},
+  { id: 4, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2012.jpg", ciudad: "Piñas", transporte: "Servientrega", guia: "1000550887"},
+  { id: 5, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2003.jpg", ciudad: "El Empalme", transporte: "Servientrega", guia: "1000548904"},
+  { id: 6, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2006.jpg", ciudad: "Santo Domingo", transporte: "Servientrega", guia: "1000557642"},
+  { id: 7, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2011.jpg", ciudad: "Yantzaza", transporte: "Servientrega", guia: "1000548917"},
+  { id: 8, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2004.jpg", ciudad: "El Guabo", transporte: "Servientrega", guia: "1000550082"},
+  { id: 9, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2002.jpg", ciudad: "Ambato", transporte: "Servientrega", guia: "1000548921"},
+  { id: 10, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2001.jpg", ciudad: "Loja", transporte: "Servientrega", guia: "1000548911"},
+  { id: 11, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2007.jpg", ciudad: "Santa Rosa", transporte: "Servientrega", guia: "9020829699"},
+  { id: 12, img: "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2009.png", ciudad: "Zumba", transporte: "Servientrega", guia: "9021468959"},
 ];
 
 const Pruebas = () => {

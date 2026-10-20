@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   ArrowRight, ShoppingBag, Truck, CheckCircle, 
-  Package, CreditCard, ExternalLink, MapPin, Clock, Navigation
+  Package, CreditCard, ExternalLink, MapPin, Clock, Navigation, MessageCircle
 } from "lucide-react";
 // 1. IMPORTAR HOOK DE NAVEGACIÓN
 import { useNavigate } from "react-router-dom";
@@ -9,11 +9,51 @@ import {TikTokIcon, InstagramIcon, FacebookIcon} from "../components/SocialMedia
 import { crearSlug } from '../helpers/slug';
 import { Bike, CarFront, Flame, Settings } from "lucide-react";
 
+// ===== UBICACIÓN Y HORARIO =====
+const FOTO_LOCAL = "https://imagenes.fgstoreec.com/OTROS/local_f%C3%ADsico.jpg";
+const LINK_MAPA = "https://maps.app.goo.gl/9dk6tMF17Qkc4ydg8";
+
+// dias: 0 = domingo ... 6 = sábado
+const HORARIOS = [
+  { etiqueta: "Lunes a Viernes", horas: "9:00 am - 6:00 pm", dias: [1, 2, 3, 4, 5] },
+  { etiqueta: "Sábados", horas: "10:00 am - 5:00 pm", dias: [6] },
+  { etiqueta: "Domingos", horas: "Sin atención", dias: [0], cerrado: true },
+];
+
+// Calcula día y si está abierto, usando la hora de Ecuador sin importar dónde esté el visitante
+const calcularEstadoLocal = () => {
+  const partes = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Guayaquil",
+    weekday: "short",
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+
+  const get = (tipo) => partes.find((p) => p.type === tipo)?.value;
+  const mapaDias = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const dia = mapaDias[get("weekday")];
+  const minutos = parseInt(get("hour"), 10) * 60 + parseInt(get("minute"), 10);
+
+  let abierto = false;
+  if (dia >= 1 && dia <= 5) abierto = minutos >= 9 * 60 && minutos < 18 * 60;
+  else if (dia === 6) abierto = minutos >= 10 * 60 && minutos < 17 * 60;
+
+  return { dia, abierto };
+};
+
 const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
   // 2. INICIALIZAR HOOK
   const navigate = useNavigate();
+
+  // Estado abierto/cerrado (se actualiza cada minuto)
+  const [estadoLocal, setEstadoLocal] = useState(calcularEstadoLocal);
+  useEffect(() => {
+    const id = setInterval(() => setEstadoLocal(calcularEstadoLocal()), 60000);
+    return () => clearInterval(id);
+  }, []);
   
-  const imagenFondo = "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769076545/imgi_32_bike_gajser_team-shoot_hondaracing_shotbybavo_2_d74wbu.jpg";
+  const imagenFondo = "https://imagenes.fgstoreec.com/OTROS/portada_principal.jpg";
 
   return (
     <div className="font-sans text-slate-900 bg-white">
@@ -68,26 +108,196 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
         }
       `}</style>
 
-      {/* ===================== HERO SECTION ===================== */}
-      <div className="relative w-full h-[500px] md:h-[560px] bg-slate-900 overflow-hidden">
+{/* ===================== HERO SECTION ===================== */}
+      <div className="relative w-full min-h-[650px] md:min-h-[650px] py-16 md:py-20 bg-slate-900 overflow-hidden flex items-center">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-black/30 z-10" />
+          {/* Fondo oscuro ligeramente aumentado para que resalte más el texto y las tarjetas */}
+          <div className="absolute inset-0 bg-black/40 z-10" />
           <img src={imagenFondo} className="w-full h-full object-cover object-center" alt="Fondo" />
         </div>
-        <div className="relative z-20 h-full max-w-7xl mx-auto px-6 flex flex-col justify-center">
+        
+        <div className="relative z-20 w-full h-full max-w-7xl mx-auto px-6 flex flex-col justify-center">
           <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-8xl font-black text-white leading-tight mb-4 md:mb-6 drop-shadow-xl uppercase tracking-tight">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-4 md:mb-4 drop-shadow-xl uppercase tracking-tight">
               FGSTOREEC
             </h1>
             <p className="text-white text-lg md:text-2xl font-bold mb-3 drop-shadow-md">
               Descubre nuestra variedad de motos a escala y varios productos más.
             </p>
-            <p className="text-slate-200 text-base md:text-xl font-medium tracking-wide uppercase drop-shadow-md">
+            <p className="text-slate-200 text-sm md:text-xl font-medium tracking-wide uppercase drop-shadow-md mb-8">
               QUITO - ECUADOR
             </p>
+
+            {/* ===== NUEVAS TARJETAS DE INFORMACIÓN (Pagos y WhatsApp) ===== */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mt-4">
+              
+              {/* Tarjeta de Pagos */}
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col justify-between shadow-2xl">
+                <div>
+                  <div className="flex items-center gap-3 mb-2.5">
+                    <div className="p-2 bg-blue-500/20 rounded-lg">
+                      <CreditCard className="text-blue-300 w-5 h-5 md:w-6 md:h-6" />
+                    </div>
+                    <h3 className="text-white font-bold text-base md:text-lg">¡Aceptamos Tarjetas!</h3>
+                  </div>
+                  <p className="text-slate-200 text-xs md:text-sm leading-relaxed mb-4">
+                    Paga con <strong>Tarjeta de Crédito o Débito</strong> mediante link de cobro seguro desde la App de Banco Guayaquil.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <span className="px-2.5 py-1 bg-white/20 border border-white/10 rounded-md text-[10px] md:text-xs text-white font-black tracking-wider shadow-sm">AMERICAN EXPRESS</span>
+                  <span className="px-2.5 py-1 bg-white/20 border border-white/10 rounded-md text-[10px] md:text-xs text-white font-black tracking-wider shadow-sm">VISA</span>
+                  <span className="px-2.5 py-1 bg-white/20 border border-white/10 rounded-md text-[10px] md:text-xs text-white font-black tracking-wider shadow-sm">MASTERCARD</span>
+                </div>
+              </div>
+
+              {/* Tarjeta de WhatsApp */}
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col justify-between shadow-2xl">
+                <div>
+                  <div className="flex items-center gap-3 mb-2.5">
+                    <div className="p-2 bg-[#25D366]/20 rounded-lg">
+                      <MessageCircle className="text-[#25D366] w-5 h-5 md:w-6 md:h-6" />
+                    </div>
+                    <h3 className="text-white font-bold text-base md:text-lg">Atención al Cliente</h3>
+                  </div>
+                  <p className="text-slate-200 text-xs md:text-sm leading-relaxed mb-4">
+                    Estamos receptando tus pedidos 24/7 en WhatsApp.
+                  </p>
+                </div>
+                <a 
+                  href="https://wa.me/593958866618" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebd57] text-white px-4 py-3 md:py-3.5 rounded-xl font-extrabold text-sm md:text-base shadow-lg hover:shadow-[#25D366]/30 transition-all active:scale-95"
+                >
+                  <MessageCircle size={20} className="md:w-6 md:h-6" /> Escríbenos
+                </a>
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
+
+{/* ===================== UBICACIÓN Y HORARIO ===================== */}
+      <section className="store-bar-container bg-slate-50 border-y border-slate-200 py-12 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          
+          {/* Título centrado (Estilo Catálogo / Productos Destacados) */}
+          <div className="mb-10 md:mb-14 text-center">
+            <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-4">
+              Ubicación y Horario
+            </h2>
+            <div className="flex justify-center mb-4">
+              <span
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${
+                  estadoLocal.abierto
+                    ? "bg-green-100 text-green-700 border border-green-200"
+                    : "bg-red-100 text-red-700 border border-red-200"
+                }`}
+              >
+                <span
+                  className={`store-live-dot w-2 h-2 rounded-full ${
+                    estadoLocal.abierto ? "bg-green-500" : "bg-red-500"
+                  }`}
+                />
+                {estadoLocal.abierto ? "Abierto ahora" : "Cerrado ahora"}
+              </span>
+            </div>
+          </div>
+
+          {/* Contenido (Foto + Info) - Se eliminó max-w-5xl para ocupar todo el ancho */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start w-full">
+
+            {/* Foto del local */}
+            <div className="store-bar-title group relative block overflow-hidden rounded-3xl shadow-lg aspect-[4/3] lg:aspect-auto lg:h-[420px] bg-slate-200 border border-slate-200">
+              <img
+                src={FOTO_LOCAL}
+                alt="Local de FGSTOREEC en Quito"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              {/* Etiqueta centrada sobre la foto */}
+              <div className="absolute bottom-5 left-0 right-0 flex justify-center">
+                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full text-xs sm:text-sm font-bold text-slate-800 shadow-sm">
+                  <MapPin size={16} className="text-red-600" />
+                  Quito, Ecuador
+                </div>
+              </div>
+            </div>
+
+            {/* Información y Horarios */}
+            <div className="store-bar-details flex flex-col items-center lg:items-start text-center lg:text-left w-full">
+              
+              {/* Tarjeta de Dirección */}
+              <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 mb-5 lg:mb-6">
+                <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4">
+                  <div className="p-3 bg-red-50 rounded-xl flex-shrink-0">
+                    <MapPin size={24} className="text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg mb-2 text-slate-900">Dirección</h3>
+                    <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+                      Venezuela y Galápagos, Quito
+                    </p>
+                    <p className="text-slate-500 text-xs md:text-sm leading-relaxed mt-1">
+                      A pocos pasos de la Iglesia Basílica del Voto Nacional.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tarjeta de Horarios */}
+              <div className="w-full bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 mb-8">
+                <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4">
+                  <div className="p-3 bg-red-50 rounded-xl flex-shrink-0 mb-2 lg:mb-0">
+                    <Clock size={24} className="text-red-600" />
+                  </div>
+                  <div className="w-full">
+                    <h3 className="font-bold text-lg mb-4 text-slate-900">Horarios de atención</h3>
+                    <ul className="space-y-3 w-full">
+                      {HORARIOS.map((h) => {
+                        const esHoy = h.dias.includes(estadoLocal.dia);
+                        return (
+                          <li
+                            key={h.etiqueta}
+                            className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm md:text-base transition-colors ${
+                              esHoy ? "bg-slate-50 border border-slate-200 shadow-sm" : ""
+                            }`}
+                          >
+                            <span className={`font-semibold flex items-center gap-2 ${esHoy ? "text-slate-900" : "text-slate-600"}`}>
+                              {h.etiqueta}
+                              {esHoy && (
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
+                                  Hoy
+                                </span>
+                              )}
+                            </span>
+                            <span className={h.cerrado ? "text-red-500 font-semibold" : "text-slate-700"}>
+                              {h.horas}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botón Único Turquesa */}
+              <a
+                href={LINK_MAPA}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="store-bar-btn inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-xl font-bold text-sm md:text-base shadow-lg hover:shadow-teal-500/30 w-full sm:w-auto transition-all"
+              >
+                <Navigation size={18} /> Ver ubicación en Google Maps
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ===================== REDES SOCIALES ===================== */}
       <div className="relative bg-gradient-to-b from-white to-slate-50 border-y border-slate-200">
@@ -110,7 +320,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
               </div>
               <div className="relative text-left flex-1 min-w-0">
                 <p className="text-[10px] sm:text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Síguenos</p>
-                <p className="font-bold text-sm sm:text-base truncate">+11k en TikTok</p>
+                <p className="font-bold text-sm sm:text-base truncate">+12k en TikTok</p>
               </div>
               <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
             </a>
@@ -234,7 +444,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
                   </div>
                 </div>
               );
-            })}
+            })} 
           </div>
 
           {/* ===================== NUEVA SECCIÓN: CATÁLOGO COMPLETO ===================== */}
@@ -246,28 +456,28 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
               <button onClick={() => navigate('/motos')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
                 {/* REEMPLAZO POR IMAGEN */}
-                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776834311/moto_bnf3th.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
+                <img src="https://imagenes.fgstoreec.com/OTROS/logo_moto.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
                 <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Motos a escala</span>
               </button>
 
               <button onClick={() => navigate('/autos')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
                 {/* REEMPLAZO POR IMAGEN */}
-                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776834449/carro-deportivo_ncivec.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
+                <img src="https://imagenes.fgstoreec.com/OTROS/logo_auto.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
                 <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Autos a escala</span>
               </button>
 
               <button onClick={() => navigate('/hotwheels')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
                 {/* REEMPLAZO POR IMAGEN */}
-                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776835042/rueda-de-fuego_i8monv.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
+                <img src="https://imagenes.fgstoreec.com/OTROS/logo_hotwheels.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
                 <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Hotwheels</span>
               </button>
 
               <button onClick={() => navigate('/accesorios')} className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 active:scale-95 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-0 group-hover:scale-150 transition-transform duration-500"></div>
                 {/* REEMPLAZO POR IMAGEN */}
-                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1776834256/llavero_3_otof2g.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
+                <img src="https://imagenes.fgstoreec.com/OTROS/logo_hotwheels.png" alt="Motos" className="w-14 h-14 md:w-16 md:h-16 mb-3 relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform object-contain" style={{ imageRendering: 'high-quality' }}/>
                 <span className="font-black text-slate-800 text-sm md:text-lg relative z-10 group-hover:text-blue-700">Accesorios</span>
               </button>
             </div>
@@ -283,7 +493,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {[
               { icon: <Truck size={32} />, title: "Envíos a todo Ecuador", desc: "Mediante Servientrega o Cooperativas de Transporte" },
-              { icon: <CheckCircle size={32} />, title: "Pagos Seguros", desc: "Transferencias, Depósitos o contra entrega en Quito" },
+              { icon: <CheckCircle size={32} />, title: "Pagos Seguros", desc: "Aceptamos transferencias, depósitos, pagos en efectivo en nuestro local o contraentrega" },
               { icon: <Package size={32} />, title: "Calidad Garantizada", desc: "Productos de excelente calidad" },
             ].map((item, idx) => (
               <div key={idx} className="flex flex-col items-center text-center px-4">
@@ -315,9 +525,9 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
                 Aceptamos transferencias directas a las siguientes instituciones bancarias:
               </p>
               <div className="grid grid-cols-3 gap-4 md:gap-8 items-center justify-items-center">
-                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769069515/png-transparent-banco-pichincha-hd-logo_ecxzuf.png" alt="Banco Pichincha" className="h-8 md:h-12 object-contain logo-pulse" style={{ animationDelay: '0s' }} />
-                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769068298/logo_bg_magenta_f46kbl.png" alt="Banco Guayaquil" className="h-6 md:h-10 object-contain logo-pulse" style={{ animationDelay: '1s' }} />
-                <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769068298/Logo-Banco-con-ISO-2025-2_ihhbzj.png" alt="Produbanco" className="h-6 md:h-8 object-contain logo-pulse" style={{ animationDelay: '2s' }} />
+                <img src="https://imagenes.fgstoreec.com/OTROS/logo_bpichincha.png" alt="Banco Pichincha" className="h-8 md:h-12 object-contain logo-pulse" style={{ animationDelay: '0s' }} />
+                <img src="https://imagenes.fgstoreec.com/OTROS/logo_bg.png" alt="Banco Guayaquil" className="h-6 md:h-10 object-contain logo-pulse" style={{ animationDelay: '1s' }} />
+                <img src="https://imagenes.fgstoreec.com/OTROS/logo_bpac%C3%ADfico.png" alt="Banco del Pacífico" className="h-6 md:h-8 object-contain logo-pulse" style={{ animationDelay: '2s' }} />
               </div>
             </div>
 
@@ -333,7 +543,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8">
                   <div className="w-24 md:w-32 flex-shrink-0">
-                    <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769069573/servientrega-logo-png_seeklogo-424932_ynxjo8.png" alt="Logo Servientrega" className="w-full object-contain" />
+                    <img src="https://imagenes.fgstoreec.com/OTROS/logo_servientrega.png" alt="Logo Servientrega" className="w-full object-contain" />
                   </div>
                   <div className="flex-1">
                     <p className="text-slate-600 text-sm mb-4 leading-relaxed">
@@ -358,11 +568,11 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-12">
             {[
-              "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070390/WhatsApp_Image_2026-01-22_at_3.24.25_AM_xxqxy1.jpg",
-              "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070388/WhatsApp_Image_2026-01-22_at_3.24.28_AM_uojvbb.jpg",
-              "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070392/WhatsApp_Image_2026-01-22_at_3.24.20_AM_u5dzoz.jpg",
-              "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070384/WhatsApp_Image_2026-01-22_at_3.24.32_AM_1_zoelkp.jpg",
-              "https://res.cloudinary.com/dx0dmthm2/image/upload/v1769070391/WhatsApp_Image_2026-01-22_at_3.24.20_AM_1_aht16o.jpg",
+              "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2001.jpg",
+              "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2002.jpg",
+              "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2003.jpg",
+              "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2004.jpg",
+              "https://imagenes.fgstoreec.com/REFERENCIAS%20DE%20ENVIOS/referencias%20de%20envio%2005.jpg",
             ].map((src, index) => (
               <div key={index} className={`bg-slate-100 rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition aspect-square relative group ${index === 0 ? "col-span-2 row-span-2" : ""}`}>
                 <img src={src} alt={`Referencia ${index + 1}`} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -397,7 +607,7 @@ const Inicio = ({ productos, agregarAlCarrito, onSelectProducto }) => {
               </div>
             </div>
             <div className="relative">
-              <img src="https://res.cloudinary.com/dx0dmthm2/image/upload/v1769067380/WhatsApp_Image_2026-01-22_at_2.36.03_AM_oep9eo.jpg" alt="FG Store colección" className="w-full h-[300px] md:h-[500px] object-cover rounded-2xl shadow-2xl" />
+              <img src="https://imagenes.fgstoreec.com/OTROS/sobre_nosotros.jpg" alt="FG Store colección" className="w-full h-[300px] md:h-[500px] object-cover rounded-2xl shadow-2xl" />
             </div>
           </div>
         </div>
